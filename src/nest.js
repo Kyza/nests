@@ -45,19 +45,19 @@ export default function Nest(defaultData) {
 }
 
 function get(obj, path, defaultVal) {
-	const keys = [...new Set(typeof path === "string" ? path.split(".") : path)];
+	const keys = [...(typeof path === "string" ? path.split(".") : path)];
 	const lastKey = keys.pop();
 	const lastObj = keys.reduce((obj, key) => (obj[key] = obj[key] ?? {}), obj);
 	return lastObj[lastKey] ?? defaultVal;
 }
 function set(obj, path, val) {
-	const keys = [...new Set(typeof path === "string" ? path.split(".") : path)];
+	const keys = [...(typeof path === "string" ? path.split(".") : path)];
 	const lastKey = keys.pop();
 	const lastObj = keys.reduce((obj, key) => (obj[key] = obj[key] ?? {}), obj);
 	return (lastObj[lastKey] = val);
 }
 function del(obj, path) {
-	const keys = [...new Set(typeof path === "string" ? path.split(".") : path)];
+	const keys = [...(typeof path === "string" ? path.split(".") : path)];
 	const lastKey = keys.pop();
 
 	for (const key of keys) {
@@ -70,7 +70,7 @@ function del(obj, path) {
 	return true;
 }
 function has(obj, path) {
-	const keys = [...new Set(typeof path === "string" ? path.split(".") : path)];
+	const keys = [...(typeof path === "string" ? path.split(".") : path)];
 
 	for (const key of keys) {
 		if (!(obj[key] ?? false)) {
