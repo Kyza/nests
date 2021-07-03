@@ -100,3 +100,7 @@ This is called before a value is deleted.
 ### `after-del`
 
 This is called after a value is deleted.
+
+## Connections
+
+Nests comes with some premade connections for persistent storage.
