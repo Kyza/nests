@@ -1,6 +1,44 @@
-# Nests
+<h1 align="center">Nests</h1>
 
-Easy state storage with a lot of control.
+<p align="center">
+	Easy state storage with a lot of control.
+</p>
+
+---
+
+<a href="https://github.com/Kyza/nests" align="center">
+	<h2>GitHub</h2>
+</a>
+<p align="center">
+	<img src="https://badgen.net/github/watchers/Kyza/nests" />
+	<img src="https://badgen.net/github/stars/Kyza/nests" />
+	<img src="https://badgen.net/github/forks/Kyza/nests" />
+	<img src="https://badgen.net/github/issues/Kyza/nests" />
+	<img src="https://badgen.net/github/prs/Kyza/nests" />
+	<img src="https://badgen.net/github/license/Kyza/nests" />
+</p>
+<a href="https://bundlephobia.com/package/nests@latest" align="center">
+	<h2>Bundlephobia</h2>
+</a>
+<p align="center">
+	<img src="https://badgen.net/bundlephobia/min/nests" />
+	<img src="https://badgen.net/bundlephobia/minzip/nests" />
+	<img src="https://badgen.net/bundlephobia/dependency-count/nests" />
+	<img src="https://badgen.net/bundlephobia/tree-shaking/nests" />
+</p>
+<a href="https://www.npmjs.com/package/nests" align="center">
+	<h2>NPM<h2>
+</a>
+<p align="center">
+	<img src="https://badgen.net/npm/v/nests" />
+	<!-- <img src="https://badgen.net/npm/dw/nests" />
+	<img src="https://badgen.net/npm/dm/nests" />
+	<img src="https://badgen.net/npm/dy/nests" />
+	<img src="https://badgen.net/npm/dt/nests" /> -->
+	<img src="https://badgen.net/npm/dependents/nests" />
+</p>
+
+---
 
 ```js
 import { Nest, NestEvents } from "nests";
@@ -22,6 +60,8 @@ store.array.push(4);
 // after-set: array,3 = 4
 // after-set: array,length = 4
 ```
+
+---
 
 ## Concepts
 
