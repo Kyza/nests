@@ -1,7 +1,7 @@
 {
 	"name": "nests",
 	"version": "1.0.4",
-	"description": "Simple stores with a lot of control.",
+	"description": "Easy state storage with a lot of control.",
 	"main": "./lib/index.js",
 	"files": [
 		"lib/**/*"
@@ -10,6 +10,8 @@
 		"build": "tsc",
 		"test": "node ./test.js"
 	},
+	"repository": "github:Kyza/nests",
+	"bugs": "https://github.com/Kyza/nests/issues",
 	"keywords": [
 		"flux",
 		"redux",

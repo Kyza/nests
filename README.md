@@ -1,6 +1,6 @@
 # Nests
 
-Simple stores with a lot of control.
+Easy state storage with a lot of control.
 
 ```js
 import { Nest, NestEvents } from "nests";
@@ -17,8 +17,6 @@ emitter.on({
 store.array = [1, 2, 3];
 store.array.push(4);
 
-console.log(store);
-
 /* Console Output */
 // after-set: array = 1,2,3
 // after-set: array,3 = 4
@@ -27,7 +25,7 @@ console.log(store);
 
 ## Concepts
 
-First of all, if you are looking for effecient ways to store data, this is **_not_** the library for you. However, if you can deal with slightly slower response times in trade for an easier API, this **_is_** the library for you.
+First of all, if you are looking for _super speedy_ ways to store data, this is not the library for you. However, if you can deal with slightly slower response times in trade for a much easier API, this _is_ the library for you.
 
 ### How can I think of this data structure?
 
@@ -35,7 +33,7 @@ Think of nests as a normal object, but instead of non-existant keys being `undef
 
 ### Instant Deeply Nested Objects
 
-Every key already exists? Well, that's not _really_ true, but it's close. In order to provide an easier way to store data, any key you access will return an empty object if it doesn't exist. Keep in mind that _it doesn't create_ the key.
+Every key already exists? Well, that's not _really_ true, but it's close. In order to provide an easier way to store data, any key you access will return an empty object if it doesn't exist. Keep in mind that just accessing a non-existent key for example `someFunction(store.some.new.key)` won't create the empty data on the object.
 
 So what does that even mean? This means that you can instantly set a deeply nested value without having to create the entire path manually.
 
@@ -51,19 +49,38 @@ Into this clean implementation:
 store.this.is.a.nest.with.a.key = "value";
 ```
 
+There's a trap, however! Since nothing on the store will ever return `undefined` your logic can suffer!
+
+```js
+// Does not work!
+if (!store.some.new.key) {
+	store.some.new.key = "value";
+}
+
+// Works!
+if (!Object.keys(store.some.new.key).length) {
+	store.some.new.key = "value";
+}
+
+// Lodash.
+if (_.isEmpty(store.some.new.key)) {
+	store.some.new.key = "value";
+}
+```
+
 ### References
 
-Always remember references. If you set an object from the nest to an outside variable, that variable will become a reference to the nest and continue to trigger events. Use a deep copy method to copy the object if you want to detatch it from the nest.
+Always remember references. If you set an object from the nest to an outside variable, that variable will become a reference to the nest and continue to trigger events. Use a deep copy function to copy the object if you want to detatch it from the nest.
 
 ### Arrays
 
 _Please please please_ be careful when using arrays in your nests. They can be many times slower than normal which is devestating for performance on large arrays with ~100,000 items.
 
-On my machine it takes ~10ms to use unshift on a normal array with 1,000,000 items, while it takes almost ~750ms to use unshift the same array in a nest.
+On my machine it takes ~10ms to use `unshift` on a normal array with 1,000,000 items, while it takes almost ~750ms to use unshift the same array in a nest.
 
-If possible, try to use objects instead of arrays. If you absolutely need to use a large array in your nest, create a nest with the `fastArrays` property.
+If possible, try to use objects instead of arrays. If you absolutely need to use a large array in your nest, create a nest with the `fastArrays` option.
 
-Remember references again! When transferring data from a nest to a normal array, remember to use the spread operator (`[...store.array]`) to get a normal array that isn't attached to the nest.
+Remember references again! When transferring data from a nest to a normal array, remember to use a deep copy function (or the spread operator (`[...store.array]`) if array items aren't objects) to get a normal array that isn't attached to the nest.
 
 #### The `fastArrays` Option
 
