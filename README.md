@@ -6,7 +6,7 @@ Simple stores with a lot of control.
 import { Nest, NestEvents } from "nests";
 const { store, emitter } = new Nest();
 
-emitter.on(NestEventTypes.AFTER_SET, (path, value) => {
+emitter.on(NestEvents.AFTER_SET, (path, value) => {
 	console.log(`after-set: ${path} = ${value}`);
 });
 
