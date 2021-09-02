@@ -6,10 +6,10 @@
 
 ---
 
-<a href="https://github.com/Kyza/nests" align="center">
+<a href="https://github.com/Kyza/nests">
 	<h2>GitHub</h2>
 </a>
-<p align="center">
+<p>
 	<img src="https://badgen.net/github/watchers/Kyza/nests" />
 	<img src="https://badgen.net/github/stars/Kyza/nests" />
 	<img src="https://badgen.net/github/forks/Kyza/nests" />
@@ -17,19 +17,19 @@
 	<img src="https://badgen.net/github/prs/Kyza/nests" />
 	<img src="https://badgen.net/github/license/Kyza/nests" />
 </p>
-<a href="https://bundlephobia.com/package/nests@latest" align="center">
+<a href="https://bundlephobia.com/package/nests@latest">
 	<h2>Bundlephobia</h2>
 </a>
-<p align="center">
+<p>
 	<img src="https://badgen.net/bundlephobia/min/nests" />
 	<img src="https://badgen.net/bundlephobia/minzip/nests" />
 	<img src="https://badgen.net/bundlephobia/dependency-count/nests" />
 	<img src="https://badgen.net/bundlephobia/tree-shaking/nests" />
 </p>
-<a href="https://www.npmjs.com/package/nests" align="center">
+<a href="https://www.npmjs.com/package/nests">
 	<h2>NPM<h2>
 </a>
-<p align="center">
+<p>
 	<img src="https://badgen.net/npm/v/nests" />
 	<!-- <img src="https://badgen.net/npm/dw/nests" />
 	<img src="https://badgen.net/npm/dm/nests" />
