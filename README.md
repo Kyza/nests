@@ -6,8 +6,12 @@ Simple stores with a lot of control.
 import { Nest, NestEvents } from "nests";
 const { store, emitter } = new Nest();
 
-emitter.on(NestEvents.AFTER_SET, (path, value) => {
-	console.log(`after-set: ${path} = ${value}`);
+emitter.on({
+	event: NestEvents.AFTER_SET,
+	id: "AFTER_SET_EXAMPLE",
+	listener: (path, value) => {
+		console.log(`after-set: ${path} = ${value}`);
+	},
 });
 
 store.array = [1, 2, 3];
@@ -79,9 +83,13 @@ Nests uses the [EventEmitter](https://nodejs.org/api/events.html) from NodeJS to
 const { store, emitter } = new Nest();
 
 // You can also use `emitter.once` to only listen for the next event.
-emitter.on(NestEvents.AFTER_SET, (path, value) => {
-	// `someSetting` was enabled!
-	console.log(`${path} = ${value}`); // someSetting,enabled = true
+emitter.on({
+	event: NestEvents.AFTER_SET,
+	id: "SETTINGS",
+	listener: (path, value) => {
+		// `someSetting` was enabled!
+		console.log(`${path} = ${value}`); // someSetting,enabled = true
+	},
 });
 
 store.someSetting.enabled = true;
