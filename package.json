@@ -1,6 +1,6 @@
 {
 	"name": "nests",
-	"version": "1.0.3",
+	"version": "1.0.4",
 	"description": "Simple stores with a lot of control.",
 	"main": "./lib/index.js",
 	"files": [
@@ -10,12 +10,19 @@
 		"build": "tsc",
 		"test": "node ./test.js"
 	},
-	"keywords": [],
+	"keywords": [
+		"flux",
+		"redux",
+		"nests",
+		"state",
+		"simple",
+		"predictable",
+		"easy",
+		"deep"
+	],
 	"author": "Kyza",
 	"license": "MIT",
 	"devDependencies": {
-		"@swc/cli": "^0.1.49",
-		"@swc/core": "^1.2.84",
 		"typescript": "^4.4.2"
 	},
 	"dependencies": {
