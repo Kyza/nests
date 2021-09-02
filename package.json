@@ -1,8 +1,8 @@
 {
 	"name": "nests",
-	"version": "1.0.2",
+	"version": "1.0.3",
 	"description": "Simple stores with a lot of control.",
-	"main": "./src/index.ts",
+	"main": "./lib/index.js",
 	"files": [
 		"lib/**/*"
 	],
