@@ -3,10 +3,10 @@
 Simple stores with a lot of control.
 
 ```js
-import Store from "./src/index.js";
-const { store, emitter } = new Store();
+import { Nest, NestEvents } from "nests";
+const { store, emitter } = new Nest();
 
-emitter.on("after-set", (path, value) => {
+emitter.on(NestEventTypes.AFTER_SET, (path, value) => {
 	console.log(`after-set: ${path} = ${value}`);
 });
 
@@ -57,19 +57,29 @@ _Please please please_ be careful when using arrays in your nests. They can be m
 
 On my machine it takes ~10ms to use unshift on a normal array with 1,000,000 items, while it takes almost ~750ms to use unshift the same array in a nest.
 
-If possible, try to use objects instead of arrays. If you absolutely need to use a large array, run the calculation outside of the nest and assign the new array to the array inside of the nest.
+If possible, try to use objects instead of arrays. If you absolutely need to use a large array in your nest, create a nest with the `fastArrays` property.
 
 Remember references again! When transferring data from a nest to a normal array, remember to use the spread operator (`[...store.array]`) to get a normal array that isn't attached to the nest.
+
+#### The `fastArrays` Option
+
+If you are using a large array in your nest, you can use the `fastArrays` option to make it faster. This brings arrays back to around the speed of JavaScript's native array methods.
+
+However, there's a price. The emitter will no longer emit events when you push or splice items. This means you will have to assign to the array directly to get events to emit.
+
+```js
+const { store, emitter } = new Nest({ fastArrays: true });
+```
 
 ## Events
 
 Nests uses the [EventEmitter](https://nodejs.org/api/events.html) from NodeJS to dispatch events.
 
 ```js
-const { store, emitter } = new Store();
+const { store, emitter } = new Nest();
 
 // You can also use `emitter.once` to only listen for the next event.
-emitter.on("after-set", (path, value) => {
+emitter.on(NestEvents.AFTER_SET, (path, value) => {
 	// `someSetting` was enabled!
 	console.log(`${path} = ${value}`); // someSetting,enabled = true
 });
@@ -100,7 +110,3 @@ This is called before a value is deleted.
 ### `after-del`
 
 This is called after a value is deleted.
-
-## Connections
-
-Nests comes with some premade connections for persistent storage.
