@@ -1,9 +1,10 @@
 {
 	"compilerOptions": {
 		"target": "es6",
-		"module": "commonjs",
+		"module": "ESNext",
+		"moduleResolution": "node",
 		"declaration": true,
-		"outDir": "./lib",
+		"outDir": "./lib/mjs",
 		"strict": true
 	},
 	"include": ["src"],
