@@ -1,9 +1,10 @@
 {
 	"name": "nests",
-	"version": "1.0.6",
+	"version": "1.0.7",
 	"description": "Easy state storage with a lot of control.",
 	"main": "./lib/cjs/index.js",
 	"module": "./lib/mjs/index.js",
+	"sideEffects": false,
 	"files": [
 		"lib/**/*"
 	],
