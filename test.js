@@ -1,28 +1,44 @@
-const { Nest } = require("./lib");
+const { Nest, NestEvents } = require("./lib/cjs");
 
-const { store, emitter } = Nest({
+const { nest, emitter } = Nest({
 	fastArrays: true,
 });
 
-function nanoseconds() {
-	const hrTime = process.hrtime();
-	return hrTime[0] * 1000000000 + hrTime[1];
-}
+emitter.on(NestEvents.AFTER_SET, (data) => {
+	console.log(data);
+});
 
-const start2 = nanoseconds();
-const array = new Array(1000000).fill(Math.random());
-array.unshift(Math.random());
-const time2 = nanoseconds() - start2;
+// Emits!
+nest.array = [];
 
-console.log(`Normal Array Speed: ${time2.toLocaleString()}ns`);
+// Doesn't emit.
+nest.array.push(1);
 
-const start1 = nanoseconds();
-store.array = new Array(1000000).fill(Math.random());
-store.array.unshift(Math.random());
-const time1 = nanoseconds() - start1;
+// Doesn't emit.
+nest.array[1] = 2;
 
-console.log(`Store Array Speed: ${time1.toLocaleString()}ns`);
+// Emits!
+nest.array = nest.array;
 
-store.cool = Math.random();
+// function nanoseconds() {
+// 	const hrTime = process.hrtime();
+// 	return hrTime[0] * 1000000000 + hrTime[1];
+// }
 
-console.log(store.cool);
+// const start2 = nanoseconds();
+// const array = new Array(1000000).fill(Math.random());
+// array.unshift(Math.random());
+// const time2 = nanoseconds() - start2;
+
+// console.log(`Normal Array Speed: ${time2.toLocaleString()}ns`);
+
+// const start1 = nanoseconds();
+// nest.array = new Array(1000000).fill(Math.random());
+// nest.array.unshift(Math.random());
+// const time1 = nanoseconds() - start1;
+
+// console.log(`Nest Array Speed: ${time1.toLocaleString()}ns`);
+
+// nest.cool = Math.random();
+
+// console.log(nest.cool);

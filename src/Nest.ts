@@ -1,8 +1,12 @@
-// Typings are broken maybe it's me maybe it isn't but for now we call this @ts-ignore.
+// Typings are broken for deep-proxy maybe it's me maybe it isn't but for now we call this @ts-ignore.
 import * as DeepProxy from "proxy-deep";
 
 import EventEmitter from "./EventEmitter";
-import { NestEvents } from "./index";
+import NestEvents from "./NestEvents";
+import get from "./get";
+import set from "./set";
+import del from "./del";
+import has from "./has";
 
 export default function Nest({
 	data = {},
@@ -11,24 +15,27 @@ export default function Nest({
 	data?: object;
 	fastArrays?: boolean;
 } = {}): {
-	store: any;
+	nest: typeof Proxy;
 	emitter: EventEmitter;
 } {
 	const emitter = new EventEmitter();
 
 	return {
 		// @ts-ignore
-		store: new DeepProxy(data, {
+		nest: new DeepProxy(data, {
 			// @ts-ignore
 			get(target, thisArg, receiver) {
 				const fullPath = [...this.path, thisArg];
 
-				emitter.emit({ event: NestEvents.BEFORE_GET, data: fullPath });
+				emitter.emit({
+					event: NestEvents.BEFORE_GET,
+					data: { nest: this.rootTarget, fullPath },
+				});
 				const value = get(data, fullPath, {});
 				if (typeof value !== "object") {
 					emitter.emit({
 						event: NestEvents.AFTER_GET,
-						data: [fullPath, value],
+						data: { nest: this.rootTarget, fullPath, value },
 					});
 				}
 
@@ -42,26 +49,32 @@ export default function Nest({
 			set(target, thisArg, value, receiver) {
 				const fullPath = [...this.path, thisArg];
 
-				emitter.emit({ event: NestEvents.BEFORE_SET, data: [fullPath, value] });
+				emitter.emit({
+					event: NestEvents.BEFORE_SET,
+					data: { nest: this.rootTarget, fullPath, value },
+				});
 				set(data, fullPath, value);
-				emitter.emit({ event: NestEvents.AFTER_SET, data: [fullPath, value] });
+				emitter.emit({
+					event: NestEvents.AFTER_SET,
+					data: { nest: this.rootTarget, fullPath, value },
+				});
 
 				return true;
 			},
 			// @ts-ignore
 			deleteProperty(target, thisArg) {
 				const fullPath = [...this.path, thisArg];
-				const oldValue = get(data, fullPath, {});
+				const value = get(data, fullPath, {});
 
 				if (has(data, fullPath)) {
 					emitter.emit({
 						event: NestEvents.BEFORE_DEL,
-						data: [fullPath, oldValue],
+						data: { nest: this.rootTarget, fullPath, value },
 					});
 					del(data, fullPath);
 					emitter.emit({
 						event: NestEvents.AFTER_DEL,
-						data: [fullPath, oldValue],
+						data: { nest: this.rootTarget, fullPath, value },
 					});
 				}
 
@@ -70,51 +83,4 @@ export default function Nest({
 		}),
 		emitter,
 	};
-}
-
-function get(
-	obj: any,
-	path: string | string[] | PropertyKey[],
-	defaultVal: any
-) {
-	const keys = [...(typeof path === "string" ? path.split(".") : path)];
-	const lastKey = keys.pop() ?? "";
-	const lastObj: any = keys.reduce(
-		(obj, key) => (obj[key] = obj[key] ?? {}),
-		obj
-	);
-	return lastObj[lastKey] ?? defaultVal;
-}
-function set(obj: any, path: string | string[] | PropertyKey[], val: any) {
-	const keys = [...(typeof path === "string" ? path.split(".") : path)];
-	const lastKey = keys.pop() ?? "";
-	const lastObj: any = keys.reduce(
-		(obj, key) => (obj[key] = obj[key] ?? {}),
-		obj
-	);
-	return (lastObj[lastKey] = val);
-}
-function del(obj: any, path: string | string[] | PropertyKey[]) {
-	const keys = [...(typeof path === "string" ? path.split(".") : path)];
-	const lastKey = keys.pop() ?? "";
-
-	for (const key of keys) {
-		if (!(obj[key] ?? false)) {
-			return false;
-		}
-		obj = obj[key];
-	}
-	delete obj[lastKey];
-	return true;
-}
-function has(obj: any, path: string | string[] | PropertyKey[]) {
-	const keys = [...(typeof path === "string" ? path.split(".") : path)];
-
-	for (const key of keys) {
-		if (!(obj[key] ?? false)) {
-			return false;
-		}
-		obj = obj[key];
-	}
-	return true;
 }

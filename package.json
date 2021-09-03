@@ -1,15 +1,16 @@
 {
 	"name": "nests",
-	"version": "1.0.10",
+	"version": "1.1.0",
 	"description": "Easy state storage with a lot of control.",
 	"main": "./lib/cjs/index.js",
 	"module": "./lib/mjs/index.js",
+	"types": "./lib/types/index.d.js",
 	"sideEffects": false,
 	"files": [
 		"lib/**/*"
 	],
 	"scripts": {
-		"build": "tsc --project tsconfig.cjs.json & tsc --project tsconfig.mjs.json",
+		"build": "tsc --project tsconfig.cjs.json & tsc --project tsconfig.mjs.json & tsc --project tsconfig.types.json",
 		"test": "node ./test.js"
 	},
 	"repository": "github:Kyza/nests",
@@ -19,15 +20,27 @@
 		"redux",
 		"nests",
 		"state",
+		"store",
 		"simple",
 		"predictable",
 		"easy",
-		"deep"
+		"deep",
+		"react"
 	],
 	"author": "Kyza",
 	"license": "MIT",
 	"devDependencies": {
+		"@types/react": "^17.0.19",
+		"@types/react-dom": "^17.0.9",
 		"typescript": "^4.4.2"
+	},
+	"peerDependencies": {
+		"react": ">=16.8"
+	},
+	"peerDependenciesMeta": {
+		"react": {
+			"optional": true
+		}
 	},
 	"dependencies": {
 		"proxy-deep": "^3.1.0"

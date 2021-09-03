@@ -1,39 +1,50 @@
+import NestEvents from "./NestEvents";
+
+export type ListenerData = {
+	nest: typeof Proxy;
+	fullPath: string[];
+	value?: any;
+};
+
+export type Listener = (data: ListenerData) => any;
+
+export type ListenerObject = {
+	[event: string]: Set<Listener>;
+};
+
 export default class EventEmitter {
-	#listeners: any = {};
+	#listeners: ListenerObject = (() => {
+		const obj: ListenerObject = {};
+		for (const event of Object.values(NestEvents)) {
+			obj[event] = new Set();
+		}
+		return obj;
+	})();
 
-	on({
-		event,
-		id,
-		listener,
-	}: {
-		event: string;
-		id: string;
-		listener: () => void;
-	}) {
-		if (this.#listeners[event]?.[id]) {
-			throw Error(`Listener "${id}" on ${event} already exists.`);
+	on(event: string, listener: Listener) {
+		if (this.#listeners[event].has(listener)) {
+			throw Error(`This listener on ${event} already exists.`);
 		}
-		if (!this.#listeners[event]) {
-			this.#listeners[event] = {};
-		}
-		this.#listeners[event][id] = listener;
+		this.#listeners[event].add(listener);
 	}
 
-	off({ event, id }: { event: string; id: string; listener: () => void }) {
-		if (!this.#listeners[event]?.[id]) {
-			return;
-		}
-
-		delete this.#listeners[event][id];
+	once(event: string, listener: Listener) {
+		const onceListener = (data: ListenerData) => {
+			this.off(event, onceListener);
+			listener(data);
+		};
+		this.on(event, onceListener);
 	}
 
-	emit({ event, data }: { event: string; data: any[] }) {
-		if (!this.#listeners[event]) {
-			return;
+	off(event: string, listener: Listener) {
+		if (this.#listeners[event].has(listener)) {
+			this.#listeners[event].delete(listener);
 		}
+	}
 
+	emit({ event, data }: { event: string; data: ListenerData }) {
 		for (const listener of this.#listeners[event]) {
-			listener(...data);
+			listener(data);
 		}
 	}
 }
