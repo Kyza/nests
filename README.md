@@ -208,7 +208,6 @@ const settingsNest = new Nest({
 const { nest: settings } = settingsNest;
 
 export default function App() {
-	console.log(settingsNest);
 	useNest({
 		...settingsNest,
 		// This is run for every emit and makes the hook only update the state if it returns true.
