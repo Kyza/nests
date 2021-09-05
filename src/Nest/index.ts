@@ -25,6 +25,7 @@ export default function Nest({
 	return {
 		// @ts-ignore
 		nest: new DeepProxy(data, {
+			// @ts-ignore
 			get(target, thisArg, receiver) {
 				const path = [...this.path, thisArg];
 				const value = get(data, path, {});
@@ -39,6 +40,7 @@ export default function Nest({
 				}
 				return this.nest(value);
 			},
+			// @ts-ignore
 			set(target, thisArg, value, receiver) {
 				const path = [...this.path, thisArg];
 				set(data, path, value);
@@ -49,6 +51,7 @@ export default function Nest({
 				});
 				return value;
 			},
+			// @ts-ignore
 			deleteProperty(target, thisArg) {
 				const path = [...this.path, thisArg];
 				if (del(data, path)) {
