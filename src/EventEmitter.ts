@@ -42,7 +42,7 @@ export default class EventEmitter {
 		}
 	}
 
-	emit({ event, data }: { event: string; data: ListenerData }) {
+	emit(event: string, data: ListenerData) {
 		for (const listener of this.#listeners[event]) {
 			listener(data);
 		}

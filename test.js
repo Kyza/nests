@@ -25,7 +25,12 @@ if (!Nest.has(nest.some.new.key)) {
 	console.log("Doesn't have it!");
 }
 
-console.log(Nest.has({}), Nest.has(new Date()));
+console.log(
+	Nest.has({}),
+	Nest.has(new Date()),
+	Nest.has({ a: "a" }),
+	Nest.has([])
+);
 
 // function nanoseconds() {
 // 	const hrTime = process.hrtime();

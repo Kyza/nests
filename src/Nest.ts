@@ -30,15 +30,16 @@ export default function Nest({
 			get(target, thisArg, receiver) {
 				const fullPath = [...this.path, thisArg];
 
-				emitter.emit({
-					event: NestEvents.BEFORE_GET,
-					data: { nest: this.rootTarget, fullPath },
+				emitter.emit(NestEvents.BEFORE_GET, {
+					nest: this.rootTarget,
+					fullPath,
 				});
 				const value = get(data, fullPath, {});
 				if (typeof value !== "object") {
-					emitter.emit({
-						event: NestEvents.AFTER_GET,
-						data: { nest: this.rootTarget, fullPath, value },
+					emitter.emit(NestEvents.AFTER_GET, {
+						nest: this.rootTarget,
+						fullPath,
+						value,
 					});
 				}
 
@@ -52,14 +53,16 @@ export default function Nest({
 			set(target, thisArg, value, receiver) {
 				const fullPath = [...this.path, thisArg];
 
-				emitter.emit({
-					event: NestEvents.BEFORE_SET,
-					data: { nest: this.rootTarget, fullPath, value },
+				emitter.emit(NestEvents.BEFORE_SET, {
+					nest: this.rootTarget,
+					fullPath,
+					value,
 				});
 				set(data, fullPath, value);
-				emitter.emit({
-					event: NestEvents.AFTER_SET,
-					data: { nest: this.rootTarget, fullPath, value },
+				emitter.emit(NestEvents.AFTER_SET, {
+					nest: this.rootTarget,
+					fullPath,
+					value,
 				});
 
 				return true;
@@ -70,14 +73,16 @@ export default function Nest({
 				const value = get(data, fullPath, {});
 
 				if (has(data, fullPath)) {
-					emitter.emit({
-						event: NestEvents.BEFORE_DEL,
-						data: { nest: this.rootTarget, fullPath, value },
+					emitter.emit(NestEvents.BEFORE_DEL, {
+						nest: this.rootTarget,
+						fullPath,
+						value,
 					});
 					del(data, fullPath);
-					emitter.emit({
-						event: NestEvents.AFTER_DEL,
-						data: { nest: this.rootTarget, fullPath, value },
+					emitter.emit(NestEvents.AFTER_DEL, {
+						nest: this.rootTarget,
+						fullPath,
+						value,
 					});
 				}
 
