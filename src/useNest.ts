@@ -19,12 +19,12 @@ export default function useNest({
 			if (typeof filter !== "function") setState(newState);
 			if (filter(data)) setState(newState);
 		}
-		emitter.on(NestEvents.AFTER_SET, listener);
-		emitter.on(NestEvents.AFTER_DEL, listener);
+		emitter.on(NestEvents.SET, listener);
+		emitter.on(NestEvents.DEL, listener);
 
 		return () => {
-			emitter.off(NestEvents.AFTER_SET, listener);
-			emitter.off(NestEvents.AFTER_DEL, listener);
+			emitter.off(NestEvents.SET, listener);
+			emitter.off(NestEvents.DEL, listener);
 		};
 	});
 }

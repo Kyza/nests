@@ -1,24 +1,24 @@
 const { Nest, NestEvents } = require("./dev");
 
 const { nest, emitter } = Nest({
-	fastArrays: true,
+	fastArrays: false,
 });
 
-emitter.on(NestEvents.AFTER_SET, (data) => {
+emitter.on(NestEvents.SET, (data) => {
 	console.log(data);
 });
 
-// Emits!
-nest.array = [];
+// // Emits!
+// nest.array = [];
 
-// Doesn't emit.
-nest.array.push(1);
+// // Doesn't emit.
+// nest.array.push(1);
 
-// Doesn't emit.
-nest.array[1] = 2;
+// // Doesn't emit.
+// nest.array[1] = 2;
 
-// Emits!
-nest.array = nest.array;
+// // Emits!
+// nest.array = nest.array;
 
 // Returns true for everything but {}.
 if (!Nest.has(nest.some.new.key)) {
@@ -31,6 +31,18 @@ console.log(
 	Nest.has({ a: "a" }),
 	Nest.has([])
 );
+
+nest.bruh = "d";
+
+console.time("A");
+nest.bruh = "a";
+console.timeEnd("A");
+
+const obj = {};
+console.time("B");
+nest.r = "b";
+console.timeEnd("B");
+console.log(nest);
 
 // function nanoseconds() {
 // 	const hrTime = process.hrtime();

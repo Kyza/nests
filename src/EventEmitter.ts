@@ -1,9 +1,8 @@
-import { Set } from "typescript";
 import NestEvents from "./NestEvents";
 
 export type ListenerData = {
 	nest: typeof Proxy;
-	fullPath: string[];
+	path: string[];
 	value?: any;
 };
 
@@ -39,8 +38,6 @@ export default class EventEmitter {
 	}
 
 	emit(event: string, data: ListenerData) {
-		// Apparently Sets with their type specified aren't iterable according to TS.
-		// @ts-ignore
 		for (const listener of this.#listeners[event]) {
 			listener(data);
 		}

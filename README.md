@@ -22,10 +22,10 @@
 </p>
 <p align="center">
 	<img src="https://badgen.net/npm/v/nests" />
-	<!-- <img src="https://badgen.net/npm/dw/nests" />
+	<img src="https://badgen.net/npm/dw/nests" />
 	<img src="https://badgen.net/npm/dm/nests" />
 	<img src="https://badgen.net/npm/dy/nests" />
-	<img src="https://badgen.net/npm/dt/nests" /> -->
+	<img src="https://badgen.net/npm/dt/nests" />
 	<img src="https://badgen.net/npm/dependents/nests" />
 	<img src="https://badgen.net/npm/types/nests" />
 </p>
@@ -36,17 +36,17 @@
 import { Nest, NestEvents } from "nests";
 const { nest, emitter } = new Nest();
 
-emitter.on(NestEvents.AFTER_SET, (path, value) => {
-	console.log(`after-set: ${path} = ${value}`);
+emitter.on(NestEvents.SET, ({ nest, path, value }) => {
+	console.log(`set: ${path} = ${value}`);
 });
 
 nest.array = [1, 2, 3];
 nest.array.push(4);
 
 /* Console Output */
-// after-set: array = 1,2,3
-// after-set: array,3 = 4
-// after-set: array,length = 4
+// set: array = 1,2,3
+// set: array,3 = 4
+// set: array,length = 4
 ```
 
 ## Installation
@@ -120,7 +120,7 @@ Always remember references. If you set an object from the nest to an outside var
 
 _Please please please_ be careful when using arrays in your nests. They can be many times slower than normal which is devestating for performance on large arrays with ~100,000 items.
 
-On my machine it takes ~13ms to use `unshift` on a normal array with 1,000,000 items, while it takes almost ~650ms to use unshift the same array in a nest.
+On my machine it takes ~13ms to use `unshift` on a normal array with 1,000,000 items, while it takes ~625ms to use unshift the same array in a nest.
 
 **But don't run away just yet!**
 
@@ -132,7 +132,7 @@ Remember references again! When transferring data from a nest to a normal array,
 
 If you are using a large array in your nest, you can use the `fastArrays` option to make it faster. This _drastically_ speeds arrays back up.
 
-Using `fastArrays` boosts the speed from the large array example above to ~15ms.
+Using `fastArrays` boosts the speed from the large array example above to around the same as normal arrays.
 
 However, there's a price. The emitter will no longer emit events from inside arrays. This means you will have to run `nest.array = nest.array` after modifying the array.
 
@@ -162,7 +162,7 @@ Nests uses its own, fast, EventEmitter fit for browsers and a NodeJS environment
 const { nest, emitter } = new Nest();
 
 // You can also use `emitter.once` to only listen for the next event.
-emitter.on(NestEvents.AFTER_SET, (path, value) => {
+emitter.on(NestEvents.SET, ({ nest, path, value }) => {
 	// `someSetting` was enabled!
 	console.log(`${path} = ${value}`); // someSetting,enabled = true
 });
@@ -170,27 +170,15 @@ emitter.on(NestEvents.AFTER_SET, (path, value) => {
 nest.someSetting.enabled = true;
 ```
 
-### BEFORE_GET
-
-This is called before a value is retrieved.
-
-### AFTER_GET
+### GET
 
 This is called after a value is retrieved.
 
-### BEFORE_SET
-
-This is called before a value is set.
-
-### AFTER_SET
+### SET
 
 This is called after a value is set.
 
-### BEFORE_DEL
-
-This is called before a value is deleted.
-
-### AFTER_DEL
+### DEL
 
 This is called after a value is deleted.
 
@@ -213,7 +201,7 @@ export default function App() {
 		...settingsNest,
 		// This is run for every emit and makes the hook only update the state if it returns true.
 		// It's optional, but the default always returns true.
-		filter: (data) => true,
+		filter: ({ nest, path, value }) => true,
 	});
 
 	return (
