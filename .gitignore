@@ -1,5 +1,6 @@
 /lib
 /dev
+.pnpm-debug.log
 
 # Logs
 

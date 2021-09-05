@@ -5,11 +5,10 @@ export default function get(
 ) {
 	const keys: PropertyKey[] = typeof path === "string" ? path.split(".") : path;
 	for (let i = 0; i < keys.length; i++) {
+		obj = obj[keys[i]];
 		if (obj === null || obj === undefined) {
 			return defaultVal;
 		}
-
-		obj = obj[keys[i]];
 	}
-	return obj ?? defaultVal;
+	return obj;
 }

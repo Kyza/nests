@@ -49,7 +49,8 @@ export default function Nest({
 					path,
 					value,
 				});
-				return value;
+				// This needs to return true or it errors. /shrug
+				return true;
 			},
 			// @ts-ignore
 			deleteProperty(target, thisArg) {
