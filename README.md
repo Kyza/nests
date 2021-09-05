@@ -105,8 +105,9 @@ if (!Object.keys(nest.some.new.key).length) {
 	nest.some.new.key = "value";
 }
 
-// Lodash.
-if (_.isEmpty(nest.some.new.key)) {
+// Best practice!
+// Returns false for only {}.
+if (!Nest.has(nest.some.new.key)) {
 	nest.some.new.key = "value";
 }
 ```

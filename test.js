@@ -1,4 +1,4 @@
-const { Nest, NestEvents } = require("./lib/cjs");
+const { Nest, NestEvents } = require("./dev");
 
 const { nest, emitter } = Nest({
 	fastArrays: true,
@@ -19,6 +19,13 @@ nest.array[1] = 2;
 
 // Emits!
 nest.array = nest.array;
+
+// Returns true for everything but {}.
+if (!Nest.has(nest.some.new.key)) {
+	console.log("Doesn't have it!");
+}
+
+console.log(Nest.has({}), Nest.has(new Date()));
 
 // function nanoseconds() {
 // 	const hrTime = process.hrtime();

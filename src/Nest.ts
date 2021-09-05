@@ -1,5 +1,8 @@
-// Typings are broken for deep-proxy maybe it's me maybe it isn't but for now we call this @ts-ignore.
-import * as DeepProxy from "proxy-deep";
+// Typings are broken for deep-proxy, for now we call this @ts-ignore.
+// This module is being annoying. It'll be written from scratch in the future.
+import * as DP from "proxy-deep";
+// For now this fixes problems with some bundlers.
+const DeepProxy = DP.hasOwnProperty("default") ? DP.default : DP;
 
 import EventEmitter from "./EventEmitter";
 import NestEvents from "./NestEvents";
@@ -84,3 +87,9 @@ export default function Nest({
 		emitter,
 	};
 }
+
+Nest.has = function (nest: any): boolean {
+	if (nest === null || nest === undefined) return false;
+	if (nest.constructor === Object) return !!Object.keys(nest).length;
+	return true;
+};
