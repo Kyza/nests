@@ -3,9 +3,8 @@ export default function get(
 	path: string | PropertyKey[],
 	defaultVal: any
 ) {
-	const keys: PropertyKey[] = [
-		...(typeof path === "string" ? path.split(".") : path),
-	];
+	const keys: PropertyKey[] =
+		typeof path === "string" ? path.split(".") : [...path];
 	const lastKey: PropertyKey | undefined = keys.pop();
 
 	if (lastKey !== undefined) {

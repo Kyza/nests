@@ -1,7 +1,6 @@
 export default function set(obj: any, path: string | PropertyKey[], val: any) {
-	const keys: PropertyKey[] = [
-		...(typeof path === "string" ? path.split(".") : path),
-	];
+	const keys: PropertyKey[] =
+		typeof path === "string" ? path.split(".") : [...path];
 	const lastKey: PropertyKey | undefined = keys.pop();
 
 	if (lastKey !== undefined) {

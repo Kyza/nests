@@ -1,7 +1,5 @@
 export default function has(obj: any, path: string | PropertyKey[]) {
-	const keys: PropertyKey[] = [
-		...(typeof path === "string" ? path.split(".") : path),
-	];
+	const keys: PropertyKey[] = typeof path === "string" ? path.split(".") : path;
 
 	for (const key of keys) {
 		if (!(obj[key] ?? false)) {

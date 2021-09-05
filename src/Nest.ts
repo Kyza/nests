@@ -22,29 +22,25 @@ export default function Nest({
 	emitter: EventEmitter;
 } {
 	const emitter = new EventEmitter();
-
 	return {
 		// @ts-ignore
 		nest: new DeepProxy(data, {
 			// @ts-ignore
 			get(target, thisArg, receiver) {
 				const fullPath = [...this.path, thisArg];
-
+				const nest = this.rootTarget;
 				emitter.emit(NestEvents.BEFORE_GET, {
-					nest: this.rootTarget,
+					nest,
 					fullPath,
 				});
 				const value = get(data, fullPath, {});
-				if (typeof value !== "object") {
-					emitter.emit(NestEvents.AFTER_GET, {
-						nest: this.rootTarget,
-						fullPath,
-						value,
-					});
-				}
-
-				if (typeof value === "object") {
-					if (fastArrays && Array.isArray(value)) return value;
+				emitter.emit(NestEvents.AFTER_GET, {
+					nest,
+					fullPath,
+					value,
+				});
+				if (fastArrays && Array.isArray(value)) return value;
+				if (!Nest.has(value)) {
 					return this.nest(value);
 				}
 				return value;
@@ -52,40 +48,38 @@ export default function Nest({
 			// @ts-ignore
 			set(target, thisArg, value, receiver) {
 				const fullPath = [...this.path, thisArg];
-
+				const nest = this.rootTarget;
 				emitter.emit(NestEvents.BEFORE_SET, {
-					nest: this.rootTarget,
+					nest,
 					fullPath,
 					value,
 				});
 				set(data, fullPath, value);
 				emitter.emit(NestEvents.AFTER_SET, {
-					nest: this.rootTarget,
+					nest,
 					fullPath,
 					value,
 				});
-
 				return true;
 			},
 			// @ts-ignore
 			deleteProperty(target, thisArg) {
 				const fullPath = [...this.path, thisArg];
 				const value = get(data, fullPath, {});
-
+				const nest = this.rootTarget;
 				if (has(data, fullPath)) {
 					emitter.emit(NestEvents.BEFORE_DEL, {
-						nest: this.rootTarget,
+						nest,
 						fullPath,
 						value,
 					});
 					del(data, fullPath);
 					emitter.emit(NestEvents.AFTER_DEL, {
-						nest: this.rootTarget,
+						nest,
 						fullPath,
 						value,
 					});
 				}
-
 				return true;
 			},
 		}),

@@ -15,9 +15,9 @@ export default function useNest({
 
 	useEffect(() => {
 		function listener(data: ListenerData) {
-			if (typeof filter !== "function")
-				setState({ nest: state.nest, updater: !state.updater });
-			if (filter(data)) setState({ nest: state.nest, updater: !state.updater });
+			const newState = { nest: state.nest, updater: !state.updater };
+			if (typeof filter !== "function") setState(newState);
+			if (filter(data)) setState(newState);
 		}
 		emitter.on(NestEvents.AFTER_SET, listener);
 		emitter.on(NestEvents.AFTER_DEL, listener);

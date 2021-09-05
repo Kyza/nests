@@ -1,3 +1,4 @@
+import { Set } from "typescript";
 import NestEvents from "./NestEvents";
 
 export type ListenerData = {
@@ -13,13 +14,10 @@ export type ListenerObject = {
 };
 
 export default class EventEmitter {
-	#listeners: ListenerObject = (() => {
-		const obj: ListenerObject = {};
-		for (const event of Object.values(NestEvents)) {
-			obj[event] = new Set();
-		}
-		return obj;
-	})();
+	#listeners: ListenerObject = Object.values(NestEvents).reduce<ListenerObject>(
+		(acc, val: string) => ((acc[val] = new Set<Listener>()), acc),
+		{}
+	);
 
 	on(event: string, listener: Listener) {
 		if (this.#listeners[event].has(listener)) {
@@ -37,12 +35,12 @@ export default class EventEmitter {
 	}
 
 	off(event: string, listener: Listener) {
-		if (this.#listeners[event].has(listener)) {
-			this.#listeners[event].delete(listener);
-		}
+		this.#listeners[event].delete(listener);
 	}
 
 	emit(event: string, data: ListenerData) {
+		// Apparently Sets with their type specified aren't iterable according to TS.
+		// @ts-ignore
 		for (const listener of this.#listeners[event]) {
 			listener(data);
 		}
