@@ -134,7 +134,7 @@ If you are using a large array in your nest, you can use the `fastArrays` option
 
 Using `fastArrays` boosts the speed from the large array example above to ~15ms.
 
-However, there's a price. The emitter will no longer emit events array mutations. This means you will have to run `nest.array = nest.array` after modifying the array.
+However, there's a price. The emitter will no longer emit events from inside arrays. This means you will have to run `nest.array = nest.array` after modifying the array.
 
 ```js
 const { nest, emitter } = new Nest({ fastArrays: true });
