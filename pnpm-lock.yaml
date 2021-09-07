@@ -6,13 +6,9 @@ specifiers:
   '@types/react': ^17.0.19
   '@types/react-dom': ^17.0.9
   chokidar: ^3.5.2
-  proxy-deep: ^3.1.0
   react: ^17.0.2
   react-dom: ^17.0.2
   typescript: ^4.4.2
-
-dependencies:
-  proxy-deep: 3.1.1
 
 devDependencies:
   '@swc/cli': 0.1.49_@swc+core@1.2.84+chokidar@3.5.2
@@ -371,10 +367,6 @@ packages:
     resolution: {integrity: sha512-lY1Q/PiJGC2zOv/z391WOTD+Z02bCgsFfvxoXXf6h7kv9o+WmsmzYqrAwY63sNgOxE4xEdq0WyUnXfKeBrSvYw==}
     engines: {node: '>=8.6'}
     dev: true
-
-  /proxy-deep/3.1.1:
-    resolution: {integrity: sha512-kppbvLUNJ4IOMZds9/4gz/rtT5OFiesy3XosLsgMKlF3vb6GA5Y3ptyDlzKLcOcUBW+zaY+RiMINTsgE+O6e+Q==}
-    dev: false
 
   /queue-microtask/1.2.3:
     resolution: {integrity: sha512-NuaNSa6flKT5JaSYQzJok04JzTL1CA6aGhv5rfLW3PgqA+M2ChpZQnAC8h8i4ZFkBS8X5RqkDBHA7r4hej3K9A==}

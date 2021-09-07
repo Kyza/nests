@@ -7,8 +7,8 @@ export default function get(
 	for (let i = 0; i < keys.length; i++) {
 		obj = obj[keys[i]];
 		if (obj === null || obj === undefined) {
-			return defaultVal;
+			return { value: defaultVal, had: false };
 		}
 	}
-	return obj;
+	return { value: obj, had: true };
 }

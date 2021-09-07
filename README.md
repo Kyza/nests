@@ -70,8 +70,6 @@ npm i nests
 
 ## Concepts
 
-First of all, if you are looking for _super speedy_ ways to store data, this is not the library for you. However, if you can deal with slightly slower response times in trade for a much easier API, this _is_ the library for you.
-
 ### Instant Deeply Nested Objects
 
 Think of nests as a normal object, but instead of non-existant keys being `undefined` you get `{}`, an empty object. Every key already exists.
@@ -100,14 +98,8 @@ if (!nest.some.new.key) {
 	nest.some.new.key = "value";
 }
 
-// Works!
-if (!Object.keys(nest.some.new.key).length) {
-	nest.some.new.key = "value";
-}
-
 // Best practice!
-// Returns false for only {}.
-if (!Nest.has(nest.some.new.key)) {
+if (!"key" in nest.some.new) {
 	nest.some.new.key = "value";
 }
 ```
@@ -118,21 +110,15 @@ Always remember references. If you set an object from the nest to an outside var
 
 ### Arrays
 
-_Please please please_ be careful when using arrays in your nests. They can be many times slower than normal which is devestating for performance on large arrays with ~100,000 items.
+If you want to get the most performance out of arrays in nests as possible, use the `fastArrays` option.
 
-On my machine it takes ~13ms to use `unshift` on a normal array with 1,000,000 items, while it takes ~625ms to use unshift the same array in a nest.
-
-**But don't run away just yet!**
-
-If possible, try to use objects instead of arrays. If you absolutely need to use a large array in your nest, create a nest with the `fastArrays` option.
+When you're using arrays that are greater in size than ~500 items use the `fastArrays` option.
 
 Remember references again! When transferring data from a nest to a normal array, remember to use a deep copy function (or the spread operator (`[...nest.array]`) if array items aren't objects) to get a normal array that isn't attached to the nest.
 
 #### The fastArrays Option
 
-If you are using a large array in your nest, you can use the `fastArrays` option to make it faster. This _drastically_ speeds arrays back up.
-
-Using `fastArrays` boosts the speed from the large array example above to around the same as normal arrays.
+If you are using a large array in your nest, you can use the `fastArrays` option to make it faster. This drastically speeds arrays back up.
 
 However, there's a price. The emitter will no longer emit events from inside arrays. This means you will have to run `nest.array = nest.array` after modifying the array.
 
