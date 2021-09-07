@@ -99,7 +99,7 @@ if (!nest.some.new.key) {
 }
 
 // Best practice!
-if (!"key" in nest.some.new) {
+if (!("key" in nest.some.new)) {
 	nest.some.new.key = "value";
 }
 ```
