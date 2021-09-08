@@ -1,6 +1,11 @@
 import EventEmitter from "./EventEmitter";
 import NestEvents from "./NestEvents";
 
+export type Nest = {
+	nest: typeof Proxy;
+	emitter: EventEmitter;
+};
+
 export default function Nest({
 	data = {},
 	fastArrays = false,

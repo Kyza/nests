@@ -1,20 +1,44 @@
 {
 	"name": "nests",
-	"version": "1.4.0",
+	"version": "1.4.1",
 	"description": "Easy state storage with a lot of control.",
 	"main": "./lib/cjs/index.js",
+	"import": "./lib/esm/index.js",
 	"module": "./lib/mjs/index.js",
 	"types": "./lib/types/index.d.js",
+	"exports": {
+		"./package.json": "./package.json",
+		".": {
+			"default": "./lib/cjs/index.js",
+			"module": "./lib/mjs/index.js",
+			"import": "./lib/esm/index.js",
+			"types": "./lib/types/index.d.ts"
+		},
+		"./react": {
+			"default": "./lib/cjs/react/index.js",
+			"module": "./lib/mjs/react/index.js",
+			"import": "./lib/esm/react/index.js",
+			"types": "./lib/types/react/index.d.ts"
+		}
+	},
 	"sideEffects": false,
 	"files": [
-		"lib/**/*"
+		"lib/**/*",
+		"README.md"
 	],
 	"scripts": {
-		"build": "tsc --project tsconfig.cjs.json & tsc --project tsconfig.mjs.json & tsc --project tsconfig.types.json",
+		"build": "npm run build-cjs & npm run build-mjs & npm run build-esm & npm run build-types",
+		"build-cjs": "tsc --project tsconfig.cjs.json",
+		"build-mjs": "tsc --project tsconfig.mjs.json",
+		"build-esm": "tsc --project tsconfig.esm.json",
+		"build-types": "tsc --project tsconfig.types.json",
 		"dev": "npx swc ./src/ -d ./dev/ --watch",
 		"test": "node ./test.js"
 	},
-	"repository": "https://github.com/Kyza/nests",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Kyza/nests"
+	},
 	"bugs": "https://github.com/Kyza/nests/issues",
 	"keywords": [
 		"flux",
@@ -26,7 +50,9 @@
 		"predictable",
 		"easy",
 		"deep",
-		"react"
+		"react",
+		"solid",
+		"immer"
 	],
 	"author": "Kyza",
 	"license": "MIT",
