@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import EventEmitter, { ListenerData } from "./EventEmitter";
 import NestEvents from "./NestEvents";
 
@@ -7,16 +7,15 @@ export default function useNest({
 	emitter,
 	filter = () => true,
 }: {
-	nest: typeof Proxy;
+	nest?: typeof Proxy;
 	emitter: EventEmitter;
 	filter?: (data: ListenerData) => boolean;
-}): any {
-	const [value] = useState(nest);
+}): void {
+	const value = useRef(nest);
 	const [updater, setUpdater] = useState(false);
 
 	useEffect(() => {
 		function listener(data: ListenerData) {
-			if (typeof filter !== "function") return void setUpdater(!updater);
 			if (filter(data)) setUpdater(!updater);
 		}
 		emitter.on(NestEvents.SET, listener);

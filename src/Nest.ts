@@ -1,8 +1,5 @@
 import EventEmitter from "./EventEmitter";
 import NestEvents from "./NestEvents";
-import get from "./utilities/get";
-import set from "./utilities/set";
-import del from "./utilities/del";
 
 export default function Nest({
 	data = {},
@@ -21,10 +18,10 @@ export default function Nest({
 		path: string[] = []
 	): typeof Proxy {
 		return new Proxy(target, {
-			get(target, thisArg: string, receiver) {
-				const newPath: string[] = [...path, thisArg];
-				const { value, had } = get(data, newPath, {});
-				if (had) {
+			get(target, property: string, receiver) {
+				const newPath: string[] = [...path, property];
+				const value = target[property];
+				if (value !== undefined && value !== null) {
 					emitter.emit(NestEvents.GET, {
 						nest: root,
 						path: newPath,
@@ -33,35 +30,44 @@ export default function Nest({
 					if (!fastArrays && Array.isArray(value)) {
 						return createProxy(value, root, newPath);
 					}
+					if (typeof value === "object") {
+						return createProxy(value, root, newPath);
+					}
 					return value;
 				}
-				return createProxy(value, root, newPath);
+				return createProxy((target[property] = {}), root, newPath);
 			},
-			set(target, thisArg: string, value, receiver) {
-				const newPath: string[] = [...path, thisArg];
-				set(data, newPath, value);
+			set(target, property: string, value, receiver) {
+				target[property] = value;
 				emitter.emit(NestEvents.SET, {
 					nest: root,
-					path: newPath,
+					path: [...path, property],
 					value,
 				});
 				// This needs to return true or it errors. /shrug
 				return true;
 			},
-			deleteProperty(target, thisArg: string) {
-				const newPath: string[] = [...path, thisArg];
-				if (del(data, newPath)) {
+			deleteProperty(target, property: string) {
+				if (delete target[property]) {
 					emitter.emit(NestEvents.DEL, {
 						nest: root,
-						path: newPath,
+						path: [...path, property],
 					});
 					return true;
 				}
 				return false;
 			},
+			has(target, property) {
+				if (
+					typeof target[property] === "object" &&
+					Object.keys(target[property]).length === 0
+				) {
+					return false;
+				}
+				return property in target;
+			},
 		});
 	}
-
 	return {
 		nest: createProxy(data, data),
 		emitter,

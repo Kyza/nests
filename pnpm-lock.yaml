@@ -3,6 +3,7 @@ lockfileVersion: 5.3
 specifiers:
   '@swc/cli': ^0.1.49
   '@swc/core': ^1.2.84
+  '@types/node': ^16.7.13
   '@types/react': ^17.0.19
   '@types/react-dom': ^17.0.9
   chokidar: ^3.5.2
@@ -13,6 +14,7 @@ specifiers:
 devDependencies:
   '@swc/cli': 0.1.49_@swc+core@1.2.84+chokidar@3.5.2
   '@swc/core': 1.2.84
+  '@types/node': 16.7.13
   '@types/react': 17.0.19
   '@types/react-dom': 17.0.9
   chokidar: 3.5.2
@@ -198,6 +200,10 @@ packages:
       '@swc/core-win32-arm64-msvc': 1.2.84
       '@swc/core-win32-ia32-msvc': 1.2.84
       '@swc/core-win32-x64-msvc': 1.2.84
+    dev: true
+
+  /@types/node/16.7.13:
+    resolution: {integrity: sha512-pLUPDn+YG3FYEt/pHI74HmnJOWzeR+tOIQzUx93pi9M7D8OE7PSLr97HboXwk5F+JS+TLtWuzCOW97AHjmOXXA==}
     dev: true
 
   /@types/prop-types/15.7.4:
