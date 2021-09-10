@@ -6,7 +6,7 @@ export type ListenerData = {
 };
 
 export type ListenerEventDataFunction = (
-	event: keyof Event,
+	event: keyof Event | string,
 	data: ListenerData | any
 ) => any;
 export type ListenerDataFunction = (data: ListenerData | any) => any;
@@ -36,24 +36,33 @@ export default class EventEmitter {
 		{}
 	);
 
-	on(event: string, listener: ListenerEventDataFunction) {
+	on: ListenerEventDataFunction = function (
+		event: string,
+		listener: ListenerEventDataFunction
+	) {
 		if (this.listeners[event].has(listener)) {
 			throw Error(`This listener on ${event} already exists.`);
 		}
 		this.listeners[event].add(listener);
-	}
+	};
 
-	once(event: string, listener: ListenerEventDataFunction) {
+	once: ListenerEventDataFunction = function (
+		event: string,
+		listener: ListenerEventDataFunction
+	) {
 		const onceListener: ListenerEventDataFunction = (event, data) => {
 			this.off(event, onceListener);
 			listener(event, data);
 		};
 		this.on(event, onceListener);
-	}
+	};
 
-	off(event: string, listener: ListenerEventDataFunction) {
+	off: ListenerEventDataFunction = function (
+		event: string,
+		listener: ListenerEventDataFunction
+	) {
 		this.listeners[event].delete(listener);
-	}
+	};
 
 	emit: ListenerEventDataFunction = function (event, data) {
 		for (const listener of this.listeners[event]) {
