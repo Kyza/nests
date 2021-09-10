@@ -7,7 +7,7 @@ await fs.emptyDir("lib");
 
 // Build all.
 await Promise.all([
-	$`npx tsc --project tsconfig.cjs.json`,
+	$`npx tsc --project tsconfig.json`,
 	$`npx tsc --project tsconfig.esm.json`,
 	$`npx tsc --project tsconfig.mjs.json`,
 	$`npx tsc --project tsconfig.types.json`,
@@ -21,7 +21,7 @@ cd("../..");
 // Copy over all the types.
 // Copy over the README.md, LICENSE, and package.json.
 await Promise.all([
-	fs.copySync("lib/types", "lib"),
+	fs.copySync("lib/types", "lib/cjs"),
 	fs.copySync("lib/types", "lib/esm"),
 	fs.copySync("lib/types", "lib/mjs"),
 	fs.copyFile("package.json", "lib/package.json"),
