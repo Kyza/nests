@@ -1,7 +1,5 @@
 #!/usr/bin/env zx
 
-import "zx/globals";
-
 // Clean last build.
 await fs.emptyDir("lib");
 

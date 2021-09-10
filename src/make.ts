@@ -7,9 +7,7 @@ export default function make(
 		nestArrays = true,
 	}: {
 		nestArrays?: boolean;
-	} = {
-		nestArrays: true,
-	}
+	} = {}
 ): Nest {
 	const emitter = new EventEmitter();
 	function createProxy(
@@ -26,8 +24,8 @@ export default function make(
 						path: newPath,
 						value,
 					});
-					if (nestArrays && Array.isArray(value)) {
-						return createProxy(value, root, newPath);
+					if (!nestArrays && Array.isArray(value)) {
+						return value;
 					}
 					if (typeof value === "object") {
 						return createProxy(value, root, newPath);
