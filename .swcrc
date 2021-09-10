@@ -6,7 +6,7 @@
 			"decorators": false,
 			"dynamicImport": false
 		},
-		"target": "es2019",
+		"target": "es2015",
 		"loose": false
 	},
 	"module": {

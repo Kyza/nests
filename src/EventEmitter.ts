@@ -1,45 +1,63 @@
-import NestEvents from "./NestEvents";
+import Events from "./Events";
 
 export type ListenerData = {
-	nest: typeof Proxy;
 	path: string[];
 	value?: any;
 };
 
-export type Listener = (data: ListenerData) => any;
+export type ListenerEventDataFunction = (
+	event: keyof Event,
+	data: ListenerData | any
+) => any;
+export type ListenerDataFunction = (data: ListenerData | any) => any;
 
 export type ListenerObject = {
-	[event: string]: Set<Listener>;
+	[event: string]: Set<ListenerEventDataFunction>;
 };
 
 export default class EventEmitter {
-	#listeners: ListenerObject = Object.values(NestEvents).reduce<ListenerObject>(
-		(acc, val: string) => ((acc[val] = new Set<Listener>()), acc),
+	constructor() {
+		for (const event of Object.values(Events)) {
+			this[event.toLowerCase()] = (data: ListenerData | any) => {
+				this.emit(event as keyof Event, data);
+			};
+		}
+	}
+
+	get: ListenerDataFunction;
+	set: ListenerDataFunction;
+	del: ListenerDataFunction;
+	update: ListenerDataFunction;
+
+	listeners: ListenerObject = Object.values(Events).reduce<ListenerObject>(
+		(acc, val: string) => (
+			(acc[val] = new Set<ListenerEventDataFunction>()), acc
+		),
 		{}
 	);
 
-	on(event: string, listener: Listener) {
-		if (this.#listeners[event].has(listener)) {
+	on(event: string, listener: ListenerEventDataFunction) {
+		if (this.listeners[event].has(listener)) {
 			throw Error(`This listener on ${event} already exists.`);
 		}
-		this.#listeners[event].add(listener);
+		this.listeners[event].add(listener);
 	}
 
-	once(event: string, listener: Listener) {
-		const onceListener = (data: ListenerData) => {
+	once(event: string, listener: ListenerEventDataFunction) {
+		const onceListener: ListenerEventDataFunction = (event, data) => {
 			this.off(event, onceListener);
-			listener(data);
+			listener(event, data);
 		};
 		this.on(event, onceListener);
 	}
 
-	off(event: string, listener: Listener) {
-		this.#listeners[event].delete(listener);
+	off(event: string, listener: ListenerEventDataFunction) {
+		this.listeners[event].delete(listener);
 	}
 
-	emit(event: string, data: ListenerData) {
-		for (const listener of this.#listeners[event]) {
-			listener(data);
+	emit: ListenerEventDataFunction = function (event, data) {
+		for (const listener of this.listeners[event]) {
+			listener(event, data);
 		}
-	}
+	};
 }

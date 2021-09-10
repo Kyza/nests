@@ -1,63 +1,72 @@
-const { Nest, NestEvents } = require("./dev");
+const { make, Events } = require("./dev");
 
-const { nest, emitter } = Nest({
-	fastArrays: false,
-});
-
-const listener = (data) => {
-	console.log(data);
+const data = {
+	bruh: {},
 };
 
-emitter.on(NestEvents.SET, listener);
+const nest = make(data);
 
-// Emits!
-nest.array = [1];
+const listener = (...data) => {
+	console.log(...data);
+};
 
-// Doesn't emit.
-nest.array.push(1);
+nest.emitter.on(Events.SET, listener);
 
-// Doesn't emit.
-nest.array[1] = 2;
+nest.ghost.bruh = { ruhb: "ruhb" };
 
-// Emits!
-nest.array = nest.array;
+console.log(nest);
 
-nest.some.new.key;
+// // Emits!
+// nest.array = [1];
 
-if (!("key" in nest.some.new)) {
-	console.log("Doesn't have it!");
-}
+// // Doesn't emit.
+// nest.array.push(1);
 
-emitter.off(NestEvents.SET, listener);
+// // Doesn't emit.
+// nest.array[1] = 2;
 
-function nanoseconds() {
-	const hrTime = process.hrtime();
-	return hrTime[0] * 1000000000 + hrTime[1];
-}
+// // Emits!
+// nest.array = nest.array;
 
-const template = new Array(1000000).fill(Math.random());
+// nest.some.new.key;
 
-// Don't be me and forget to warm up the engine.
-const array0 = template;
-array0.unshift(Math.random());
+// if (!("key" in nest.some.new)) {
+// 	console.log("Doesn't have it!");
+// }
 
-// Now start benchmarking.
-const start2 = nanoseconds();
-const array = template;
-array.unshift(Math.random());
-const time2 = nanoseconds() - start2;
+// emitter.off(NestEvents.SET, listener);
 
-console.log(`Normal Array Speed: ${time2.toLocaleString()}ns`);
+// function nanoseconds() {
+// 	const hrTime = process.hrtime();
+// 	return hrTime[0] * 1000000000 + hrTime[1];
+// }
 
-const start1 = nanoseconds();
-nest.array = template;
-nest.array.unshift(Math.random());
-const time1 = nanoseconds() - start1;
+// const template = new Array(1000000).fill(Math.random());
 
-console.log(`Nest Array Speed: ${time1.toLocaleString()}ns`);
+// // Don't be me and forget to warm up the engine.
+// const array0 = [...template];
+// array0.unshift(Math.random());
 
-const start3 = nanoseconds();
-nest.bruh.bruh.bruh = "a";
-const time3 = nanoseconds() - start3;
+// // Now start benchmarking.
+// const start2 = nanoseconds();
+// const array = [...template];
+// array.unshift(Math.random());
+// const time2 = nanoseconds() - start2;
 
-console.log(`Nest Set Speed: ${time3.toLocaleString()}ns`);
+// console.log(`Normal Array Speed: ${time2.toLocaleString()}ns`);
+
+// const start1 = nanoseconds();
+// nest.store.array = [...template];
+// nest.store.array.unshift(Math.random());
+// const time1 = nanoseconds() - start1;
+
+// console.log(`Nest Array Speed: ${time1.toLocaleString()}ns`);
+
+// const start3 = nanoseconds();
+// nest.ghost.fast = [...template];
+// nest.ghost.fast.unshift(Math.random());
+// const time3 = nanoseconds() - start3;
+
+// console.log(`Ghost Array Speed: ${time3.toLocaleString()}ns`);
+
+// console.log(nest.store.fast.length);

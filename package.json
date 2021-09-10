@@ -1,37 +1,31 @@
 {
 	"name": "nests",
-	"version": "1.4.1",
+	"version": "2.0.0-alpha.1",
 	"description": "Easy state storage with a lot of control.",
-	"main": "./lib/cjs/index.js",
-	"import": "./lib/esm/index.js",
-	"module": "./lib/mjs/index.js",
-	"types": "./lib/types/index.d.js",
+	"main": "./index.js",
+	"module": "./esm/index.js",
+	"types": "./types/index.d.js",
 	"exports": {
 		"./package.json": "./package.json",
 		".": {
-			"default": "./lib/cjs/index.js",
-			"module": "./lib/mjs/index.js",
-			"import": "./lib/esm/index.js",
-			"types": "./lib/types/index.d.ts"
+			"default": "./index.js",
+			"module": "./esm/index.js",
+			"import": "./esm/index.mjs",
+			"types": "./types/index.d.ts"
 		},
 		"./react": {
-			"default": "./lib/cjs/react/index.js",
-			"module": "./lib/mjs/react/index.js",
-			"import": "./lib/esm/react/index.js",
-			"types": "./lib/types/react/index.d.ts"
+			"default": "./react/index.js",
+			"module": "./esm/react/index.js",
+			"import": "./esm/react/index.mjs",
+			"types": "./types/react/index.d.ts"
 		}
 	},
 	"sideEffects": false,
 	"files": [
-		"lib/**/*",
-		"README.md"
+		"**"
 	],
 	"scripts": {
-		"build": "npm run build-cjs & npm run build-mjs & npm run build-esm & npm run build-types",
-		"build-cjs": "tsc --project tsconfig.cjs.json",
-		"build-mjs": "tsc --project tsconfig.mjs.json",
-		"build-esm": "tsc --project tsconfig.esm.json",
-		"build-types": "tsc --project tsconfig.types.json",
+		"build": "node ./scripts/build.mjs",
 		"dev": "npx swc ./src/ -d ./dev/ --watch",
 		"test": "node ./test.js"
 	},
@@ -51,7 +45,6 @@
 		"easy",
 		"deep",
 		"react",
-		"solid",
 		"immer"
 	],
 	"author": "Kyza",
@@ -63,14 +56,18 @@
 		"@types/react": "^17.0.19",
 		"@types/react-dom": "^17.0.9",
 		"chokidar": "^3.5.2",
+		"fs-extra": "^10.0.0",
 		"react": "^17.0.2",
 		"react-dom": "^17.0.2",
-		"typescript": "^4.4.2"
+		"renamer": "^4.0.0",
+		"solid-js": "^1.1.2",
+		"typescript": "^4.4.2",
+		"zx": "^4.2.0"
 	},
 	"peerDependencies": {
 		"react": ">=16.8"
 	},
-	"peerDependenciesMeta": {
+	"peerDependencimjseta": {
 		"react": {
 			"optional": true
 		}
