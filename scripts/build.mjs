@@ -1,5 +1,7 @@
 #!/usr/bin/env zx
 
+const { fs } = require("zx");
+
 // Clean last build.
 await fs.emptyDir("lib");
 
@@ -16,11 +18,22 @@ cd("lib/mjs");
 await $`npx renamer --find ".js" --replace ".mjs" "**"`;
 cd("../..");
 
-// Copy the ESM build to the ./lib/esm directory again.
+// Copy over all the types.
 // Copy over the README.md, LICENSE, and package.json.
-await fs.createFile("lib/package.json");
-await fs.copyFile("package.json", "lib/package.json");
-await fs.createFile("lib/LICENSE");
-await fs.copyFile("LICENSE", "lib/LICENSE");
-await fs.createFile("lib/README.md");
-await fs.copyFile("README.md", "lib/README.md");
+await Promise.all([
+	fs.copySync("lib/types", "lib/esm"),
+	fs.copySync("lib/types", "lib/mjs"),
+	fs.copySync("lib/types", "lib/cjs"),
+	Promise.all([
+		fs.createFile("lib/package.json"),
+		fs.copyFile("package.json", "lib/package.json"),
+	]),
+	Promise.all([
+		fs.createFile("lib/LICENSE"),
+		fs.copyFile("LICENSE", "lib/LICENSE"),
+	]),
+	Promise.all([
+		fs.createFile("lib/README.md"),
+		fs.copyFile("README.md", "lib/README.md"),
+	]),
+]);
