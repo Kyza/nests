@@ -55,7 +55,7 @@ nest.store.array.push(4);
 npm i nests
 ```
 
-When importing you can specify `nests/cjs`, `nests/esm`, or `nests/mjs` if your bundler is giving you problems.
+When importing you can specify `nests/esm` or `nests/mjs` if your bundler is giving you problems.
 
 ```js
 import * as nests from "nests";
@@ -241,7 +241,11 @@ export default function App() {
 	// Pass true to indicate that it's a transient component.
 	// Here we have a filter as well to only update the component when we want to.
 	// That lets us avoid updating the component when a property we don't care about is changed.
-	useNest(counter, true, (type) => type === "counter");
+	useNest(
+		counter,
+		true,
+		(event, type) => event === "UPDATE" && type === "counter"
+	);
 
 	return (
 		<>

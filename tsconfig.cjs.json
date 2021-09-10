@@ -1,6 +1,6 @@
 {
 	"compilerOptions": {
-		"outDir": "./lib/cjs",
+		"outDir": "./lib",
 		"target": "ES6",
 		"module": "CommonJS",
 		"lib": ["ES6", "DOM"],
