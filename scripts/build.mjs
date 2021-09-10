@@ -24,16 +24,7 @@ await Promise.all([
 	fs.copySync("lib/types", "lib/esm"),
 	fs.copySync("lib/types", "lib/mjs"),
 	fs.copySync("lib/types", "lib/cjs"),
-	Promise.all([
-		fs.createFile("lib/package.json"),
-		fs.copyFile("package.json", "lib/package.json"),
-	]),
-	Promise.all([
-		fs.createFile("lib/LICENSE"),
-		fs.copyFile("LICENSE", "lib/LICENSE"),
-	]),
-	Promise.all([
-		fs.createFile("lib/README.md"),
-		fs.copyFile("README.md", "lib/README.md"),
-	]),
+	fs.copyFile("package.json", "lib/package.json"),
+	fs.copyFile("LICENSE", "lib/LICENSE"),
+	fs.copyFile("README.md", "lib/README.md"),
 ]);
