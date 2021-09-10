@@ -1,22 +1,22 @@
 {
 	"name": "nests",
-	"version": "2.0.0-alpha.6",
+	"version": "2.0.0-alpha.7",
 	"description": "Easy state storage with a lot of control.",
-	"main": "./index.js",
+	"main": "./cjs/index.js",
 	"module": "./esm/index.js",
 	"types": "./types/index.d.js",
 	"exports": {
 		"./package.json": "./package.json",
 		".": {
-			"default": "./index.js",
+			"default": "./cjs/index.js",
 			"module": "./esm/index.js",
-			"import": "./esm/index.mjs",
+			"import": "./mjs/index.mjs",
 			"types": "./types/index.d.ts"
 		},
 		"./react": {
-			"default": "./react/index.js",
+			"default": "./cjs/react/index.js",
 			"module": "./esm/react/index.js",
-			"import": "./esm/react/index.mjs",
+			"import": "./mjs/react/index.mjs",
 			"types": "./types/react/index.d.ts"
 		}
 	},

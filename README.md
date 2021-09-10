@@ -33,15 +33,15 @@
 ---
 
 ```js
-import { Nest, NestEvents } from "nests";
-const { nest, emitter } = new Nest();
+import * as nests from "nests";
+const nest = nests.make();
 
-emitter.on(NestEvents.SET, ({ nest, path, value }) => {
+nest.on(nests.Events.SET, ({ path, value }) => {
 	console.log(`set: ${path} = ${value}`);
 });
 
-nest.array = [1, 2, 3];
-nest.array.push(4);
+nest.store.array = [1, 2, 3];
+nest.store.array.push(4);
 
 /* Console Output */
 // set: array = 1,2,3
@@ -53,6 +53,12 @@ nest.array.push(4);
 
 ```bash
 npm i nests
+```
+
+When importing you can specify `nests/cjs`, `nests/esm`, or `nests/mjs` if your bundler is giving you problems.
+
+```js
+import * as nests from "nests";
 ```
 
 ## Links
@@ -70,143 +76,188 @@ npm i nests
 
 ## Concepts
 
-### Instant Deeply Nested Objects
+### Store
 
-Think of nests as a normal object, but instead of non-existant keys being `undefined` you get `{}`, an empty object. Every key already exists.
+The store is an object that lets you store data in an instantly deeply nested structure which automatically emits events to subscribers for you.
 
-Every key already exists? Well, that's not _really_ true, but it's close. In order to provide an easier way to store data, any key you access will return an empty object if it doesn't exist. Keep in mind that just accessing a non-existent key for example `someFunction(nest.some.new.key)` won't create the empty data on the object.
+#### Instant Deeply Nested Objects
 
-So what does that even mean? This means that you can instantly set a deeply nested value without having to create the entire path manually.
-
-Nests turns this mess:
+Have you ever had to do something like this?
 
 ```js
-nest = { this: { is: { a: { nest: { with: { a: { key: "value" } } } } } } };
-```
+const storage = {};
 
-Into this clean implementation:
-
-```js
-nest.this.is.a.nest.with.a.key = "value";
-```
-
-There's a trap, however! Since nothing on the nest will ever return `undefined` your logic can suffer!
-
-```js
-// Does not work!
-if (!nest.some.new.key) {
-	nest.some.new.key = "value";
-}
-
-// Best practice!
-if (!("key" in nest.some.new)) {
-	nest.some.new.key = "value";
+if (!storage.hasOwnProperty("foo")) {
+	storage.foo = "bar";
 }
 ```
 
-### References
-
-Always remember references. If you set an object from the nest to an outside variable, that variable will become a reference to the nest and continue to trigger events. Use a deep copy function to copy the object if you want to detatch it from the nest.
-
-### Arrays
-
-If you want to get the most performance out of arrays in nests as possible, use the `fastArrays` option.
-
-When you're using arrays that are greater in size than ~500 items use the `fastArrays` option.
-
-Remember references again! When transferring data from a nest to a normal array, remember to use a deep copy function (or the spread operator (`[...nest.array]`) if array items aren't objects) to get a normal array that isn't attached to the nest.
-
-#### The fastArrays Option
-
-If you are using a large array in your nest, you can use the `fastArrays` option to make it faster. This drastically speeds arrays back up.
-
-However, there's a price. The emitter will no longer emit events from inside arrays. This means you will have to run `nest.array = nest.array` after modifying the array.
+With Nests this isn't necessary anymore.
 
 ```js
-const { nest, emitter } = new Nest({ fastArrays: true });
+const nest = nests.make();
 
-// Emits!
-nest.array = [];
-
-// Doesn't emit.
-nest.array.push(1);
-
-// Doesn't emit.
-nest.array[1] = 2;
-
-// Emits!
-nest.array = nest.array;
+nest.store.foo = "bar";
 ```
 
-There is another benefit, however. You no longer need to deep copy the array to detatch it from the nest since it was never attached in the first place.
+The code is even shorter and more readable.
 
-## NestEvents and EventEmitter
-
-Nests uses its own, fast, EventEmitter fit for browsers and a NodeJS environment.
+You can go as deep as you want instantly without having to check if the property exists.
 
 ```js
-const { nest, emitter } = new Nest();
-
-// You can also use `emitter.once` to only listen for the next event.
-emitter.on(NestEvents.SET, ({ nest, path, value }) => {
-	// `someSetting` was enabled!
-	console.log(`${path} = ${value}`); // someSetting,enabled = true
-});
-
-nest.someSetting.enabled = true;
+nest.store.foo.bar.baz = "qux";
 ```
 
-### GET
-
-This is called after a value is retrieved.
-
-### SET
-
-This is called after a value is set.
-
-### DEL
-
-This is called after a value is deleted.
-
-## useNest
-
-Nest comes with a handy hook to connect it to a React component.
+Getting a property that doesn't exist will return `{}` instead of `undefined`. Use [ghost](#ghost) to check for non-existent properties correctly.
 
 ```js
-import { Nest, useNest } from "nests";
-const settingsNest = new Nest({
-	data: {
-		enabled: true,
-		name: "",
-	},
+nest.store.foo.bar.baz; // {}
+```
+
+### Automatic Events
+
+Nests comes with a small, custom, and fast, browser-ready EventEmitter.
+
+```js
+nest.on(nests.Events.SET, ({ path, value }) => {
+	console.log(`set: ${path} = ${value}`);
 });
-const { nest: settings } = settingsNest;
+
+nest.store.array = [1, 2, 3];
+nest.store.array.push(4);
+
+/* Console Output */
+// set: array = 1,2,3
+// set: array,3 = 4
+// set: array,length = 4
+```
+
+### Ghost
+
+The ghost is an object that is dual-synced with the store but isn't instantly deeply nested, doesn't emit events and is faster.
+
+Each nest has a `ghost` property that can be used to modify the store's data without triggering events. This is super handy for doing heavy calculations with many mutations and creating transient React components easily.
+
+The ghost of each nest is directly tied to the store so modifications to the ghost will be reflected in the store.
+
+```js
+nest.on(nests.Events.SET, ({ path, value }) => {
+	console.log(`set: ${path} = ${value}`);
+});
+
+nest.ghost.array = [1, 2, 3];
+nest.ghost.array.push(4);
+
+nest.store.array.push(5);
+
+console.log("The sync goes both ways:", nest.ghost.array);
+
+/* Console Output */
+// set: array,4 = 5
+// set: array,length = 5
+// The sync goes both ways: 1,2,3,4,5
+```
+
+If you want to trigger an event manually without using the store, you can use any of these functions.
+
+```js
+// Use this.
+nest.update();
+// Using these is discouraged.
+nest.get();
+nest.set();
+nest.del();
+```
+
+The downfall of ghost is that it doesn't support [Instant Deeply Nested Objects](#instant-deeply-nested-objects).
+
+```js
+nest.ghost.foo.bar.baz = "qux"; // Error!
+```
+
+This is also a good thing. It allows you to check for non-existent properties unlike the store.
+
+```js
+if (!nest.ghost.foo?.bar?.baz) {
+	// ...
+}
+```
+
+## React
+
+Here's an example of a React component.
+
+```js
+import * as nests from "nests";
+import { useNest } from "nests/react";
+
+const settings = nests.make({
+	enabled: true,
+	name: "",
+});
 
 export default function App() {
-	useNest({
-		...settingsNest,
-		// This is run for every emit and makes the hook only update the state if it returns true.
-		// It's optional, but the default always returns true.
-		filter: ({ nest, path, value }) => true,
-	});
+	// Automatically subscribe to changes in the store.
+	useNest(settings);
 
 	return (
 		<>
 			<button
 				onClick={() => {
-					settings.enabled = !settings.enabled;
+					settings.store.enabled = !settings.store.enabled;
 				}}
 			>
-				{settings.enabled ? "Enabled" : "Disabled"}
+				{settings.ghost.enabled ? "Enabled" : "Disabled"}
 			</button>
 			<input
 				type="text"
-				value={settings.name}
+				value={settings.ghost.name}
 				onInput={(event) => {
-					settings.name = event.target.value;
+					settings.store.name = event.target.value;
 				}}
 			/>
 		</>
 	);
 }
 ```
+
+Here's an example of a transient React component.
+
+```js
+import * as nests from "nests";
+import { useNest } from "nests/react";
+
+const counter = nests.make({
+	count: 0,
+});
+
+setInterval(() => {
+	// Increment using the ghost to not update the component.
+	counter.ghost.count++;
+}, 0);
+
+export default function App() {
+	// Automatically subscribe to changes in the store.
+	// Pass true to indicate that it's a transient component.
+	// Here we have a filter as well to only update the component when we want to.
+	// That lets us avoid updating the component when a property we don't care about is changed.
+	useNest(counter, true, (type) => type === "counter");
+
+	return (
+		<>
+			{counter.ghost.count}
+			<button
+				onClick={() => {
+					// Whenever the button is clicked, cause an update on the store.
+					// You can pass data to the update function which passes it to the filter in the useNest above.
+					counter.update("counter");
+				}}
+			>
+				Update
+			</button>
+		</>
+	);
+}
+```
+
+Notice that whenever any data is displayed the ghost is used to retrieve it. This is because the ghost is faster and doesn't emit events.

@@ -63,9 +63,11 @@ export default function make(
 			},
 		});
 	}
+	// TODO: Fix this so that I am using TS properly and this doesn't have to be ignored.
+	// @ts-ignore
 	return {
 		store: createProxy(data),
 		ghost: data,
-		emitter,
+		...emitter,
 	};
 }

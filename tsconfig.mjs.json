@@ -1,6 +1,6 @@
 {
 	"compilerOptions": {
-		"outDir": "./lib/temp",
+		"outDir": "./lib/mjs",
 		"target": "ES6",
 		"module": "ESNext",
 		"lib": ["ES6", "DOM"],

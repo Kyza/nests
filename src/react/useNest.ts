@@ -19,17 +19,17 @@ export default function useNest(
 		function listener(event: string, data: ListenerData) {
 			if (filter(event, data)) forceUpdate();
 		}
-		nest.emitter.on(Events.UPDATE, listener);
+		nest.on(Events.UPDATE, listener);
 		if (!transient) {
-			nest.emitter.on(Events.SET, listener);
-			nest.emitter.on(Events.DEL, listener);
+			nest.on(Events.SET, listener);
+			nest.on(Events.DEL, listener);
 		}
 
 		return () => {
-			nest.emitter.off(Events.UPDATE, listener);
+			nest.off(Events.UPDATE, listener);
 			if (!transient) {
-				nest.emitter.off(Events.SET, listener);
-				nest.emitter.off(Events.DEL, listener);
+				nest.off(Events.SET, listener);
+				nest.off(Events.DEL, listener);
 			}
 		};
 	}, []);
