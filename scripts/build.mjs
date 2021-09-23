@@ -7,8 +7,8 @@ await fs.emptyDir("lib");
 
 // Build all.
 await Promise.all([
+	$`npx tsc --project tsconfig.cjs.json`,
 	$`npx tsc --project tsconfig.json`,
-	$`npx tsc --project tsconfig.esm.json`,
 	$`npx tsc --project tsconfig.mjs.json`,
 	$`npx tsc --project tsconfig.types.json`,
 ]);

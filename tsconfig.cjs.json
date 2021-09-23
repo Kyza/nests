@@ -1,8 +1,8 @@
 {
 	"compilerOptions": {
-		"outDir": "./lib/esm",
+		"outDir": "./lib/cjs",
 		"target": "ES6",
-		"module": "ESNext",
+		"module": "CommonJS",
 		"lib": ["ES6", "DOM"],
 		"moduleResolution": "node",
 		"esModuleInterop": true,

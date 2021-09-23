@@ -1,6 +1,6 @@
 {
 	"name": "nests",
-	"version": "2.0.0-alpha.11",
+	"version": "2.0.0",
 	"description": "Easy state storage with a lot of control.",
 	"main": "./cjs/index.js",
 	"module": "./esm/index.js",
