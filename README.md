@@ -1,7 +1,7 @@
 <h1 align="center">Nests</h1>
 
 <p align="center">
-	Easy state storage with a lot of control.
+	Fast and easy state storage with a lot of control.
 </p>
 
 ---
