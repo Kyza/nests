@@ -1,5 +1,6 @@
 /lib
 /dev
+/test.js
 .pnpm-debug.log
 
 # Logs

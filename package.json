@@ -1,6 +1,6 @@
 {
 	"name": "nests",
-	"version": "2.0.1",
+	"version": "2.0.2",
 	"description": "Easy state storage with a lot of control.",
 	"main": "./cjs/index.js",
 	"module": "./esm/index.js",
@@ -22,7 +22,10 @@
 	},
 	"sideEffects": false,
 	"files": [
-		"lib/**"
+		"lib/**",
+		"README.md",
+		"package.json",
+		"LICENSE"
 	],
 	"scripts": {
 		"build": "npx zx ./scripts/build.mjs",
