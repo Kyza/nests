@@ -26,7 +26,7 @@ export default class EventEmitter {
 
 	get: ListenerDataFunction;
 	set: ListenerDataFunction;
-	del: ListenerDataFunction;
+	delete: ListenerDataFunction;
 	update: ListenerDataFunction;
 
 	listeners: ListenerObject = Object.values(Events).reduce<ListenerObject>(

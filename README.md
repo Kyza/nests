@@ -166,7 +166,7 @@ nest.update();
 // Using these is discouraged.
 nest.get();
 nest.set();
-nest.del();
+nest.delete();
 ```
 
 The downfall of ghost is that it doesn't support [Instant Deeply Nested Objects](#instant-deeply-nested-objects).

@@ -45,7 +45,7 @@ export default function make(
 			},
 			deleteProperty(target, property: string) {
 				if (delete target[property]) {
-					emitter.del({
+					emitter.delete({
 						path: [...path, property],
 					});
 					return true;
