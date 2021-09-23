@@ -42,11 +42,13 @@ nest.on(nests.Events.SET, ({ path, value }) => {
 
 nest.store.array = [1, 2, 3];
 nest.store.array.push(4);
+nest.store.instant.deeply.nested.state = true;
 
 /* Console Output */
 // set: array = 1,2,3
 // set: array,3 = 4
 // set: array,length = 4
+// set: instant,deeply,nested,state = true
 ```
 
 ## Installation
@@ -125,11 +127,13 @@ nest.on(nests.Events.SET, ({ path, value }) => {
 
 nest.store.array = [1, 2, 3];
 nest.store.array.push(4);
+nest.store.instant.deeply.nested.state = true;
 
 /* Console Output */
 // set: array = 1,2,3
 // set: array,3 = 4
 // set: array,length = 4
+// set: instant,deeply,nested,state = true
 ```
 
 ### Ghost
