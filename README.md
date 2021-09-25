@@ -36,7 +36,7 @@
 import * as nests from "nests";
 const nest = nests.make();
 
-nest.on(nests.Events.SET, ({ path, value }) => {
+nest.on(nests.Events.SET, (eventType, { path, value }) => {
 	console.log(`set: ${path} = ${value}`);
 });
 
@@ -121,7 +121,7 @@ nest.store.foo.bar.baz; // {}
 Nests comes with a small, custom, and fast, browser-ready EventEmitter.
 
 ```js
-nest.on(nests.Events.SET, ({ path, value }) => {
+nest.on(nests.Events.SET, (eventType, { path, value }) => {
 	console.log(`set: ${path} = ${value}`);
 });
 
@@ -145,7 +145,7 @@ Each nest has a `ghost` property that can be used to modify the store's data wit
 The ghost of each nest is directly tied to the store so modifications to the ghost will be reflected in the store.
 
 ```js
-nest.on(nests.Events.SET, ({ path, value }) => {
+nest.on(nests.Events.SET, (eventType, { path, value }) => {
 	console.log(`set: ${path} = ${value}`);
 });
 

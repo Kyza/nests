@@ -2,7 +2,7 @@ import EventEmitter from "./EventEmitter";
 import Nest from "./Nest";
 
 export default function make(
-	data?: any,
+	data: any = {},
 	{
 		nestArrays = true,
 	}: {

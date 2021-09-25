@@ -1,20 +1,14 @@
-const { make, Events } = require("./dev");
+const nests = require("./dev");
 
-const data = {
-	bruh: {},
-};
+const nest = nests.make();
 
-const nest = make(data);
+nest.on(nests.Events.SET, (event, { path, value }) => {
+	console.log(`set: ${path} = ${value}`);
+});
 
-const listener = (...data) => {
-	console.log(...data);
-};
-
-nest.emitter.on(Events.SET, listener);
-
-nest.ghost.bruh = { ruhb: "ruhb" };
-
-console.log(nest);
+nest.store.array = [1, 2, 3];
+nest.store.array.push(4);
+nest.store.instant.deeply.nested.state = true;
 
 // // Emits!
 // nest.array = [1];
