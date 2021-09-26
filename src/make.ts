@@ -10,11 +10,7 @@ export default function make(
 	} = {}
 ): Nest {
 	const emitter = new EventEmitter();
-	function createProxy(
-		target: any,
-		root: any = data,
-		path: string[] = []
-	): any {
+	function createProxy(target: any, root: any, path: string[]): any {
 		return new Proxy(target, {
 			get(target, property: string) {
 				const newPath: string[] = [...path, property];
@@ -66,7 +62,7 @@ export default function make(
 	// TODO: Fix this so that I am using TS properly and this doesn't have to be ignored.
 	// @ts-ignore
 	return {
-		store: createProxy(data),
+		store: createProxy(data, data, []),
 		ghost: data,
 		...emitter,
 	};

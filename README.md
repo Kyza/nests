@@ -288,7 +288,7 @@ const settings = nests.make({
 
 export default function App() {
 	// Automatically subscribe to changes in the store.
-	const ghost = useNest(settings);
+	const signalGhost = useNest(settings);
 
 	return (
 		<>
@@ -297,11 +297,11 @@ export default function App() {
 					settings.store.enabled = !settings.store.enabled;
 				}}
 			>
-				{ghost().enabled ? "Enabled" : "Disabled"}
+				{signalGhost.enabled ? "Enabled" : "Disabled"}
 			</button>
 			<input
 				type="text"
-				value={ghost().name}
+				value={signalGhost.name}
 				onInput={(event) => {
 					settings.store.name = event.target.value;
 				}}
@@ -331,7 +331,7 @@ export default function App() {
 	// Pass true to indicate that it's a transient component.
 	// Here we have a filter as well to only update the component when we want to.
 	// That lets us avoid updating the component when a property we don't care about is changed.
-	const ghost = useNest(
+	const signalGhost = useNest(
 		counter,
 		true,
 		(event, type) => event === "UPDATE" && type === "counter"
@@ -339,7 +339,7 @@ export default function App() {
 
 	return (
 		<>
-			{ghost().count}
+			{signalGhost.count}
 			<button
 				onClick={() => {
 					// Whenever the button is clicked, cause an update on the store.

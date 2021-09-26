@@ -1,37 +1,34 @@
 {
 	"name": "nests",
-	"version": "2.1.1",
+	"version": "2.2.0",
 	"description": "Fast and easy state storage with a lot of control.",
-	"main": "./lib/cjs/index.js",
-	"module": "./lib/esm/index.js",
-	"types": "./lib/types/index.d.js",
+	"main": "./cjs/index.js",
+	"module": "./esm/index.js",
+	"types": "./types/index.d.js",
 	"exports": {
 		"./package.json": "./package.json",
 		".": {
-			"default": "./lib/cjs/index.js",
-			"module": "./lib/esm/index.js",
-			"import": "./lib/mjs/index.mjs",
-			"types": "./lib/types/index.d.ts"
+			"default": "./cjs/index.js",
+			"module": "./esm/index.js",
+			"import": "./mjs/index.mjs",
+			"types": "./types/index.d.ts"
 		},
 		"./react": {
-			"default": "./lib/cjs/react/index.js",
-			"module": "./lib/esm/react/index.js",
-			"import": "./lib/mjs/react/index.mjs",
-			"types": "./lib/types/react/index.d.ts"
+			"default": "./cjs/react/index.js",
+			"module": "./esm/react/index.js",
+			"import": "./mjs/react/index.mjs",
+			"types": "./types/react/index.d.ts"
 		},
 		"./solid-js": {
-			"default": "./lib/cjs/solid-js/index.js",
-			"module": "./lib/esm/solid-js/index.js",
-			"import": "./lib/mjs/solid-js/index.mjs",
-			"types": "./lib/types/solid-js/index.d.ts"
+			"default": "./cjs/solid-js/index.js",
+			"module": "./esm/solid-js/index.js",
+			"import": "./mjs/solid-js/index.mjs",
+			"types": "./types/solid-js/index.d.ts"
 		}
 	},
 	"sideEffects": false,
 	"files": [
-		"lib/**",
-		"README.md",
-		"package.json",
-		"LICENSE"
+		"**"
 	],
 	"scripts": {
 		"build": "npx zx ./scripts/build.mjs",

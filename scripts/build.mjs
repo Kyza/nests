@@ -23,4 +23,7 @@ await Promise.all([
 	fs.copySync("lib/types", "lib/cjs"),
 	fs.copySync("lib/types", "lib/esm"),
 	fs.copySync("lib/types", "lib/mjs"),
+	fs.copySync("package.json", "lib/package.json"),
+	fs.copySync("README.md", "lib/README.md"),
+	fs.copySync("LICENSE", "lib/LICENSE"),
 ]);
