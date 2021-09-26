@@ -72,9 +72,9 @@ import * as nests from "nests";
 ## Features
 
 - [Instant Deeply Nested Objects](#instant-deeply-nested-objects)
-- [The fastArrays Option](#the-fastarrays-option)
-- [NestEvents and EventEmitter](#nestevents-and-eventemitter)
-- [useNest](#usenest)
+- [Automatic Events](#automatic-events)
+- [Ghost](#ghost)
+- [React](#react)
 
 ## Concepts
 
