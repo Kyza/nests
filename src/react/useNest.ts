@@ -33,4 +33,6 @@ export default function useNest(
 			}
 		};
 	}, []);
+
+	return nest.ghost;
 }

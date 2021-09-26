@@ -10,6 +10,7 @@ specifiers:
   react: ^17.0.2
   react-dom: ^17.0.2
   renamer: ^4.0.0
+  solid-js: ^1.1.5
   typescript: ^4.4.2
   zx: ^4.2.0
 
@@ -23,6 +24,7 @@ devDependencies:
   react: 17.0.2
   react-dom: 17.0.2_react@17.0.2
   renamer: 4.0.0
+  solid-js: 1.1.5
   typescript: 4.4.2
   zx: 4.2.0
 
@@ -836,6 +838,10 @@ packages:
   /slash/4.0.0:
     resolution: {integrity: sha512-3dOsAHXXUkQTpOYcoAxLIorMTp4gIQr5IW3iVb7A7lFIp0VHhnynm9izx6TssdrIcVIESAlVjtnO2K8bg+Coew==}
     engines: {node: '>=12'}
+    dev: true
+
+  /solid-js/1.1.5:
+    resolution: {integrity: sha512-cwMNe1U/1bqCTMco2za6LDU66jDn/57m5kfrDUhW3ls9YIbaREdktqPFGULrill22qyoFDngEg5hgm6a6vf6wg==}
     dev: true
 
   /source-map/0.7.3:
