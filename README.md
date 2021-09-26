@@ -75,6 +75,7 @@ import * as nests from "nests";
 - [Automatic Events](#automatic-events)
 - [Ghost](#ghost)
 - [React](#react)
+- [Solid](#solid)
 
 ## Concepts
 
@@ -254,6 +255,91 @@ export default function App() {
 	return (
 		<>
 			{counter.ghost.count}
+			<button
+				onClick={() => {
+					// Whenever the button is clicked, cause an update on the store.
+					// You can pass data to the update function which passes it to the filter in the useNest above.
+					counter.update("counter");
+				}}
+			>
+				Update
+			</button>
+		</>
+	);
+}
+```
+
+Notice that whenever any data is displayed the ghost is used to retrieve it. This is because the ghost is faster and doesn't emit events.
+
+## Solid
+
+Here's an example of a Solid component.
+
+Notice the key difference between Solid and React's `useNest` hooks. While both hooks return the ghost, you're required to use the ghost the Solid hook returns in order for the component to update.
+
+```js
+import * as nests from "nests";
+import { useNest } from "nests/solid-js";
+
+const settings = nests.make({
+	enabled: true,
+	name: "",
+});
+
+export default function App() {
+	// Automatically subscribe to changes in the store.
+	const ghost = useNest(settings);
+
+	return (
+		<>
+			<button
+				onClick={() => {
+					settings.store.enabled = !settings.store.enabled;
+				}}
+			>
+				{ghost().enabled ? "Enabled" : "Disabled"}
+			</button>
+			<input
+				type="text"
+				value={ghost().name}
+				onInput={(event) => {
+					settings.store.name = event.target.value;
+				}}
+			/>
+		</>
+	);
+}
+```
+
+Here's an example of a transient Solid component.
+
+```js
+import * as nests from "nests";
+import { useNest } from "nests/solid-js";
+
+const counter = nests.make({
+	count: 0,
+});
+
+setInterval(() => {
+	// Increment using the ghost to not update the component.
+	counter.ghost.count++;
+}, 0);
+
+export default function App() {
+	// Automatically subscribe to changes in the store.
+	// Pass true to indicate that it's a transient component.
+	// Here we have a filter as well to only update the component when we want to.
+	// That lets us avoid updating the component when a property we don't care about is changed.
+	const ghost = useNest(
+		counter,
+		true,
+		(event, type) => event === "UPDATE" && type === "counter"
+	);
+
+	return (
+		<>
+			{ghost().count}
 			<button
 				onClick={() => {
 					// Whenever the button is clicked, cause an update on the store.
