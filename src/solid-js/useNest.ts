@@ -13,7 +13,7 @@ export default function useNest(
 	function listener(event: string, data: ListenerData) {
 		if (filter(event, data)) {
 			// Update the proper signal.
-			signals[data.path.join(",")].set(void 0);
+			signals[data.path.join(",")]?.set(void 0);
 		}
 	}
 	nest.on(Events.UPDATE, listener);
