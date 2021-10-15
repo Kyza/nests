@@ -7,7 +7,7 @@ export default function useNest<Data>(
 	nest: Nest<Data>,
 	transient: boolean = false,
 	filter: (event: string, data: ListenerData) => boolean = () => true
-): () => any {
+): Data {
 	const signals = {};
 
 	function listener(event: string, data: ListenerData) {
