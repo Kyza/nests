@@ -3,8 +3,8 @@ import { ListenerData } from "../EventEmitter";
 import Nest from "../Nest";
 import Events from "../Events";
 
-export default function useNest(
-	nest: Nest,
+export default function useNest<Data>(
+	nest: Nest<Data>,
 	transient: boolean = false,
 	filter: (event: string, data: ListenerData) => boolean = () => true
 ): () => any {

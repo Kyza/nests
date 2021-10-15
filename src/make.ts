@@ -1,14 +1,16 @@
 import EventEmitter from "./EventEmitter";
 import Nest from "./Nest";
 
-export default function make(
-	data: any = {},
+export default function make<Data>(
+	// This can be safely ignored, the Data will always be an object or it won't work anyway.
+	// @ts-ignore
+	data: Data = {},
 	{
 		nestArrays = true,
 	}: {
 		nestArrays?: boolean;
 	} = {}
-): Nest {
+): Nest<Data> {
 	const emitter = new EventEmitter();
 	function createProxy(target: any, root: any, path: string[]): any {
 		return new Proxy(target, {
@@ -59,10 +61,10 @@ export default function make(
 			},
 		});
 	}
-	// TODO: Fix this so that I am using TS properly and this doesn't have to be ignored.
-	// @ts-ignore
 	return {
 		store: createProxy(data, data, []),
+		// This can be safely ignored, the Data will always be an object or it won't work anyway.
+		// @ts-ignore
 		ghost: data,
 		...emitter,
 	};

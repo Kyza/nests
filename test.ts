@@ -1,6 +1,13 @@
-const nests = require("./dev");
+import nests from "./lib/esm";
 
-const nest = nests.make();
+type Structure = {
+	array: number[];
+};
+
+const nest = nests.make<Structure>({
+	array: [],
+	bruh: 0,
+});
 
 nest.on(nests.Events.SET, (event, { path, value }) => {
 	console.log(`set: ${path} = ${value}`);
@@ -8,7 +15,7 @@ nest.on(nests.Events.SET, (event, { path, value }) => {
 
 nest.store.array = [1, 2, 3];
 nest.store.array.push(4);
-nest.store.instant.deeply.nested.state = true;
+nest.store.bruh = "no";
 
 // // Emits!
 // nest.array = [1];
