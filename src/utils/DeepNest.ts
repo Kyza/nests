@@ -1,4 +1,5 @@
 import { NestOptions } from "../make";
+import set from "./set";
 
 export default function DeepNest<Data extends object>(
 	target: any,
@@ -32,13 +33,14 @@ export default function DeepNest<Data extends object>(
 				return value;
 			}
 			if (options.deep) {
-				return DeepNest((target[key] = {}), root, newPath, options, traps);
+				return DeepNest({}, root, newPath, options, traps);
 			}
 			return value;
 		},
 		set(target, key: string, value) {
-			target[key] = value;
-			traps?.set?.(target, key, [...path, key], value);
+			const newPath = [...path, key];
+			root = set(root, newPath, value);
+			traps?.set?.(target, key, newPath, value);
 			// This needs to return true or it errors. /shrug
 			return true;
 		},

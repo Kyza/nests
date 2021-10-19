@@ -8,7 +8,7 @@
 		"esModuleInterop": true,
 		"allowSyntheticDefaultImports": true,
 		"noUnusedParameters": false,
-		"noUnusedLocals": true,
+		"noUnusedLocals": false,
 		"isolatedModules": true,
 		"removeComments": true
 	},
