@@ -1,71 +1,122 @@
-import EventEmitter from "./EventEmitter";
+import Events from "./Events";
+import deepClone from "./deepClone";
+import DeepNest from "./DeepNest";
+import EventEmitter, { EventStack } from "./EventEmitter";
 import Nest from "./Nest";
 
-export default function make<Data>(
-	// This can be safely ignored, the Data will always be an object or it won't work anyway.
-	// @ts-ignore
-	data: Data = {},
-	{
-		nestArrays = true,
-	}: {
-		nestArrays?: boolean;
-	} = {}
+export type NestOptions<Data> = {
+	nestArrays?: boolean;
+	clone?: (obj: Data) => Data;
+};
+
+export default function make<Data extends object>(
+	data: Data = {} as Data,
+	options: NestOptions<Data> = {}
 ): Nest<Data> {
+	let internalData = options.clone?.(data) ?? deepClone(data);
 	const emitter = new EventEmitter();
-	function createProxy(target: any, root: any, path: string[]): any {
-		return new Proxy(target, {
-			get(target, property: string) {
-				const newPath: string[] = [...path, property];
-				const value = target[property];
-				if (value !== undefined && value !== null) {
-					emitter.get({
-						path: newPath,
-						value,
-					});
-					if (!nestArrays && Array.isArray(value)) {
-						return value;
-					}
-					if (typeof value === "object") {
-						return createProxy(value, root, newPath);
-					}
-					return value;
-				}
-				return createProxy((target[property] = {}), root, newPath);
+
+	const emitterTraps = {
+		set(_target, _key, path, value) {
+			emitter.emit(Events.SET, {
+				path,
+				value,
+			});
+		},
+		deleteProperty(_target, _key, path) {
+			emitter.emit(Events.DELETE, {
+				path,
+			});
+		},
+	};
+
+	return new Proxy<Nest<Data>>(
+		{
+			get store() {
+				return DeepNest(internalData, internalData, [], options, emitterTraps);
 			},
-			set(target, property: string, value) {
-				target[property] = value;
-				emitter.set({
-					path: [...path, property],
-					value,
-				});
-				// This needs to return true or it errors. /shrug
+			set store(value) {
+				internalData = value;
+			},
+			// This can be safely ignored, the Data will always be an object or it won't work anyway.
+			// @ts-ignore
+			get state() {
+				return internalData;
+			},
+			set state(value) {
+				internalData = value;
+			},
+			get ghost() {
+				return DeepNest(internalData, internalData, [], options);
+			},
+			set ghost(value) {
+				internalData = value;
+			},
+			//
+			bulk: function (callback, transient = false) {
+				const stackedEvents: EventStack = [];
+
+				// Clone the state and set up a nest that stacks the events.
+				const stateClone = options.clone?.(data) ?? deepClone(data);
+				const nestAccessors = {
+					store: DeepNest(stateClone, stateClone, [], options, {
+						set(_target, _key, path, value) {
+							stackedEvents.push({ event: Events.SET, path, value });
+						},
+						deleteProperty(_target, _key, path) {
+							stackedEvents.push({ event: Events.DELETE, path });
+						},
+					}),
+					state: stateClone,
+					ghost: DeepNest(stateClone, stateClone, [], options),
+				};
+
+				// Run the callback with the nestAccessors.
+				callback(nestAccessors);
+
+				// Set the state all in one go.
+				internalData = stateClone;
+
+				// Run the events.
+				if (!transient) {
+					// Run compile event.
+					emitter.emit<Events.BULK>(Events.BULK, stackedEvents);
+					// Run the normal stacked events.
+					for (const { event, path, value } of stackedEvents) {
+						switch (event) {
+							case Events.SET:
+								emitter.emit(Events.SET, {
+									path,
+									value,
+								});
+								break;
+							default:
+								emitter.emit(Events.DELETE, {
+									path,
+								});
+								break;
+						}
+					}
+				}
+			},
+			on: emitter.on.bind(emitter),
+			once: emitter.once.bind(emitter),
+			off: emitter.off.bind(emitter),
+			emitter,
+		},
+		{
+			set(target, key, value) {
+				switch (key) {
+					case "store":
+					case "state":
+					case "ghost":
+						internalData = value;
+					default:
+						target[key] = value;
+						break;
+				}
 				return true;
 			},
-			deleteProperty(target, property: string) {
-				if (delete target[property]) {
-					emitter.delete({
-						path: [...path, property],
-					});
-					return true;
-				}
-				return false;
-			},
-			has(target, property) {
-				if (
-					typeof target[property] === "object" &&
-					Object.keys(target[property]).length === 0
-				) {
-					return false;
-				}
-				return property in target;
-			},
-		});
-	}
-	return {
-		store: createProxy(data, data, []),
-		// This can be safely ignored, the Data will always be an object or it won't work anyway.
-		// @ts-ignore
-		ghost: data,
-		...emitter,
-	};
+		}
+	);
 }

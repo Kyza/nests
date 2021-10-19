@@ -1,6 +1,6 @@
 {
 	"name": "nests",
-	"version": "2.3.1",
+	"version": "3.0.0-alpha.0",
 	"description": "Fast and easy state storage with a lot of control.",
 	"main": "./cjs/index.js",
 	"module": "./esm/index.js",
@@ -34,7 +34,9 @@
 		"build": "npx zx ./scripts/build.mjs",
 		"dev": "npx swc ./src/ -d ./dev/ --watch",
 		"pub": "cd ./lib && npm publish && cd ..",
-		"test": "node ./test.js"
+		"pub-alpha": "cd ./lib && npm publish --tag alpha && cd ..",
+		"pub-beta": "cd ./lib && npm publish --tag beta && cd ..",
+		"test": "tsc --project tsconfig.test.json && node ./test/test.js"
 	},
 	"repository": {
 		"type": "git",

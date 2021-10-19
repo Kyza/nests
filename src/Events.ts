@@ -1,6 +1,7 @@
-export default Object.freeze({
-	GET: "GET",
-	SET: "SET",
-	DELETE: "DELETE",
-	UPDATE: "UPDATE",
-});
+enum Events {
+	SET = "SET",
+	DELETE = "DELETE",
+	UPDATE = "UPDATE",
+	BULK = "BULK",
+}
+export default Events;

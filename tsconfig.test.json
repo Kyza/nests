@@ -1,19 +1,17 @@
 {
 	"compilerOptions": {
-		"outDir": "./lib/types",
+		"outDir": "./test",
 		"target": "ES6",
-		"module": "ESNext",
+		"module": "CommonJS",
 		"lib": ["ES6", "DOM"],
 		"moduleResolution": "node",
 		"esModuleInterop": true,
 		"allowSyntheticDefaultImports": true,
-		"noUnusedParameters": true,
+		"noUnusedParameters": false,
 		"noUnusedLocals": true,
 		"isolatedModules": true,
-		"removeComments": true,
-		"declaration": true,
-		"emitDeclarationOnly": true
+		"removeComments": true
 	},
-	"include": ["src"],
+	"include": ["test.ts", "src"],
 	"exclude": ["node_modules"]
 }
