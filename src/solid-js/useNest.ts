@@ -59,6 +59,6 @@ export default function useNest<Data>(
 		});
 	}
 
-	// Wrap the ghost in a deep proxy to automatically call get on the signals for automatic updates that are compatible and smooth with Solid.
-	return createProxy(nest.ghost, nest.ghost, []);
+	// Wrap the state in a deep proxy to automatically call get on the signals for automatic updates that are compatible and smooth with Solid.
+	return createProxy(nest.state, nest.state, []);
 }

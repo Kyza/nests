@@ -34,5 +34,5 @@ export default function useNest<Data>(
 		};
 	}, []);
 
-	return nest.ghost;
+	return nest.state;
 }
