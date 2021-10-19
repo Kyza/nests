@@ -1,6 +1,4 @@
-import get from "./get";
-import { NestOptions } from "./make";
-import set from "./set";
+import { NestOptions } from "../make";
 
 export default function DeepNest<Data extends object>(
 	target: any,
@@ -22,7 +20,7 @@ export default function DeepNest<Data extends object>(
 	const nestTraps: ProxyHandler<Data> = {
 		get(target, key: string) {
 			const newPath: string[] = [...path, key];
-			let value = get(root, newPath);
+			let value = target[key];
 			if (value != null) {
 				traps?.get?.(target, key, newPath, value);
 				if (!options.nestArrays && Array.isArray(value)) {
@@ -34,14 +32,13 @@ export default function DeepNest<Data extends object>(
 				return value;
 			}
 			if (options.deep) {
-				return DeepNest({}, root, newPath, options, traps);
+				return DeepNest((target[key] = {}), root, newPath, options, traps);
 			}
 			return value;
 		},
 		set(target, key: string, value) {
-			const newPath = [...path, key];
-			set(root, newPath, value);
-			traps?.set?.(target, key, newPath, value);
+			target[key] = value;
+			traps?.set?.(target, key, [...path, key], value);
 			// This needs to return true or it errors. /shrug
 			return true;
 		},

@@ -1,6 +1,6 @@
 {
 	"name": "nests",
-	"version": "3.0.0-alpha.1",
+	"version": "3.0.0-alpha.2",
 	"description": "Fast and easy state storage with a lot of control.",
 	"main": "./cjs/index.js",
 	"module": "./esm/index.js",
@@ -31,7 +31,7 @@
 		"**"
 	],
 	"scripts": {
-		"build": "npx zx ./scripts/build.mjs",
+		"build": "npx zx ./scripts/build.mjs && npx minified-size ./lib/esm/*.js ./lib/esm/utils/*.js",
 		"dev": "npx swc ./src/ -d ./dev/ --watch",
 		"pub": "cd ./lib && npm publish && cd ..",
 		"pub-alpha": "cd ./lib && npm publish --tag alpha && cd ..",
@@ -66,6 +66,7 @@
 		"@types/react": "^17.0.19",
 		"@types/react-dom": "^17.0.9",
 		"chokidar": "^3.5.2",
+		"minified-size": "^2.3.0",
 		"react": "^17.0.2",
 		"react-dom": "^17.0.2",
 		"renamer": "^4.0.0",
