@@ -1,16 +1,26 @@
 import { createSignal, onCleanup } from "solid-js";
-import { ListenerData } from "../EventEmitter";
+import {
+	ApplyListenerData,
+	DeleteListenerData,
+	SetListenerData,
+} from "../EventEmitter";
 import Nest from "../Nest";
 import Events from "../Events";
 
 export default function useNest<Data>(
 	nest: Nest<Data>,
 	transient: boolean = false,
-	filter: (event: string, data: ListenerData) => boolean = () => true
+	filter: (
+		event: string,
+		data: SetListenerData | DeleteListenerData | ApplyListenerData
+	) => boolean = () => true
 ): Data {
 	const signals = {};
 
-	function listener(event: string, data: ListenerData) {
+	function listener(
+		event: string,
+		data: SetListenerData | DeleteListenerData | ApplyListenerData
+	) {
 		if (filter(event, data)) {
 			// Update the proper signal.
 			signals[data.path.join(",")]?.set(void 0);
@@ -20,6 +30,7 @@ export default function useNest<Data>(
 	if (!transient) {
 		nest.on(Events.SET, listener);
 		nest.on(Events.DELETE, listener);
+		nest.on(Events.APPLY, listener);
 	}
 
 	onCleanup(() => {
@@ -27,6 +38,7 @@ export default function useNest<Data>(
 		if (!transient) {
 			nest.off(Events.SET, listener);
 			nest.off(Events.DELETE, listener);
+			nest.off(Events.APPLY, listener);
 		}
 	});
 

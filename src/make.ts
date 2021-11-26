@@ -1,62 +1,103 @@
 import Events from "./Events";
-import deepClone from "./utils/deepClone";
 import DeepNest from "./utils/DeepNest";
-import EventEmitter, { EventStack } from "./EventEmitter";
+import EventEmitter, { BulkListenerData } from "./EventEmitter";
 import Nest from "./Nest";
+import deepClone from "./utils/deepClone";
 
-export type NestOptions<Data> = {
+export type NestOptions = {
 	nestArrays?: boolean;
-	clone?: (obj: Data) => Data;
+	nestClasses?: boolean;
+	initialClone?: boolean;
+	cloner?:
+		| { deep?: boolean; function: (value: any) => any }
+		| ((value: any) => any);
 };
 
 export default function make<Data extends object>(
 	data: Data = {} as Data,
-	options: NestOptions<Data> = {}
+	options: NestOptions = {}
 ): Nest<Data> {
-	const cloner = options.clone ?? deepClone;
-	let internalData = cloner(data);
-	const emitter = new EventEmitter();
+	// No shenanigans.
+	options = deepClone(options);
 
-	const emitterTraps = {
-		set(_target: any, _key: string, path: string[], value: any) {
-			emitter.emit(Events.SET, {
-				path,
-				value,
-			});
-		},
-		deleteProperty(_target: any, _key: string, path: string[]) {
-			emitter.emit(Events.DELETE, {
-				path,
-			});
-		},
-	};
+	// Set default options.
+	options.nestArrays ??= true;
+	options.nestClasses ??= true;
+
+	if (typeof options.cloner === "function") {
+		options.cloner = {
+			deep: false,
+			function: options.cloner,
+		};
+	} else {
+		options.cloner ??= { deep: false, function: () => null };
+		options.cloner.deep ??= false;
+		options.cloner.function ??= () => null;
+	}
+
+	options.initialClone ??= true;
+
+	// Only pass what's needed.
+	const cloneFunction = (value: any) =>
+		// There's gotta be a better way to set a variable to a type. My eyes are bleeding.
+		(options.cloner as any).deep
+			? (options.cloner as any).function(value)
+			: deepClone(value, (options.cloner as any).function);
+
+	let internalData = options.initialClone ? cloneFunction(data) : data;
+
+	const emitter = new EventEmitter();
 
 	return {
 		get store() {
-			return DeepNest(internalData, internalData, [], options, emitterTraps);
+			return DeepNest<Data>(internalData, internalData, [], options, {
+				set(_target, _key, path, value) {
+					emitter.emit<Events.SET>(Events.SET, {
+						event: Events.SET,
+						path,
+						value,
+					});
+				},
+				deleteProperty(_target, _key, path) {
+					emitter.emit(Events.DELETE, {
+						event: Events.DELETE,
+						path,
+					});
+				},
+				apply(_target, _key, path, thisArg, args, value) {
+					emitter.emit<Events.APPLY>(Events.APPLY, {
+						event: Events.APPLY,
+						path,
+						thisArg,
+						args,
+						value,
+					});
+				},
+			});
 		},
 		set store(value) {
-			internalData = value;
+			internalData = cloneFunction(value);
 		},
 		get state() {
 			return internalData;
 		},
 		set state(value) {
-			internalData = value;
+			internalData = cloneFunction(value);
 		},
 		get ghost() {
-			return DeepNest(internalData, internalData, [], options);
+			return DeepNest<Data>(internalData, internalData, [], options);
 		},
 		set ghost(value) {
-			internalData = value;
+			internalData = cloneFunction(value);
 		},
-		//
 		bulk: function (callback, transient = false) {
-			const stackedEvents: EventStack = [];
+			const stackedEvents: BulkListenerData = [];
 
 			// Clone the state and set up a nest that stacks the events.
-			const stateClone = cloner(internalData);
-			const nestAccessors = {
+			const stateClone = cloneFunction(internalData);
+
+			// Run the bulk operation with the nestAccessors.
+			const shouldCancel = callback({
 				store: DeepNest(stateClone, stateClone, [], options, {
 					set(_target, _key, path, value) {
 						stackedEvents.push({ event: Events.SET, path, value });
@@ -64,27 +105,32 @@ export default function make<Data extends object>(
 					deleteProperty(_target, _key, path) {
 						stackedEvents.push({ event: Events.DELETE, path });
 					},
+					apply(_target, _key, path, thisArg, args, value) {
+						stackedEvents.push({
+							event: Events.APPLY,
+							path,
+							thisArg,
+							args,
+							value,
+						});
+					},
 				}),
 				state: stateClone,
 				ghost: DeepNest(stateClone, stateClone, [], options),
-			};
+			});
 
-			// Run the callback with the nestAccessors.
-			callback(nestAccessors);
+			if (shouldCancel) return;
 
 			// Set the state all in one go.
 			internalData = stateClone;
 
 			// Run the events.
 			if (!transient) {
-				// Run compile event.
+				// Run bulk event.
 				emitter.emit<Events.BULK>(Events.BULK, stackedEvents);
 				// Run the normal stacked events.
-				for (const { event, path, value } of stackedEvents) {
-					emitter.emit(event, {
-						path,
-						value,
-					});
+				for (const event of stackedEvents) {
+					emitter.emit(event.event, event);
 				}
 			}
 		},

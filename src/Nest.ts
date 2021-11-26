@@ -2,15 +2,19 @@ import EventEmitter from "./EventEmitter";
 
 // Access points for the data.
 export type NestAccessors<Data> = {
-	store: Data;
 	state: Data;
+	store: Data;
 	ghost: Data;
 };
 
 export default interface Nest<Data> extends NestAccessors<Data> {
 	// A bulk updater for immutable state.
 	bulk: (
-		callback: (nest: NestAccessors<Data>) => void,
+		callback: (nest: {
+			state: Data;
+			store: Data;
+			ghost: Data;
+		}) => boolean | void,
 		transient?: boolean
 	) => void;
 

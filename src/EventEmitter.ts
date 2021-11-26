@@ -1,20 +1,33 @@
 import Events from "./Events";
 
-// The two types of data that can be emitted.
+// The types of data that can be emitted.
 export type ListenerData = {
-	path: string[];
-	value?: object;
-};
-export type EventStack = {
 	event: keyof typeof Events;
 	path: string[];
+};
+export type SetListenerData = {
+	value: object;
+} & ListenerData;
+export type DeleteListenerData = ListenerData;
+export type ApplyListenerData = {
+	thisArg: object;
+	args: any[];
+	value: object;
+} & ListenerData;
+export type BulkListenerData = ({
 	value?: any;
-}[];
+} & (SetListenerData | DeleteListenerData | ApplyListenerData))[];
 
 // If the event type is Events.BULK, the listener will receive an EventStack.
 // Otherwise it'll receive a ListenerData object.
 export type ListenerReceive<EventType> = EventType extends Events.BULK
-	? EventStack
+	? BulkListenerData
+	: EventType extends Events.SET
+	? SetListenerData
+	: EventType extends Events.DELETE
+	? DeleteListenerData
+	: EventType extends Events.APPLY
+	? ApplyListenerData
 	: ListenerData;
 export type ListenerFunction<EventType> = (
 	event: keyof typeof Events,

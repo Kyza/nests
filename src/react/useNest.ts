@@ -1,28 +1,36 @@
-// Import default from React or CRA fails.
-// Why isn't CRA being updated to modern technologies if it's recommended officially.
 import { useRef, useReducer, useEffect } from "react";
-import { ListenerData } from "../EventEmitter";
+import {
+	ApplyListenerData,
+	DeleteListenerData,
+	SetListenerData,
+} from "../EventEmitter";
 import Nest from "../Nest";
 import Events from "../Events";
 
 export default function useNest<Data>(
 	nest: Nest<Data>,
 	transient: boolean = false,
-	filter: (event: string, data: ListenerData) => boolean = () => true
+	filter: (
+		event: string,
+		data: SetListenerData | DeleteListenerData | ApplyListenerData
+	) => boolean = () => true
 ): Data {
-	// Keep this here for React devtools.
-	// @ts-ignore
-	const value = useRef(nest.ghost);
-	const [, forceUpdate] = useReducer((n) => ~n, 0);
+	// @ts-ignore Keep this here for React DevTools. It's not used and TS doesn't like that.
+	const value = useRef(nest.state);
+	const [, forceUpdate] = useReducer((n) => !n, !1);
 
 	useEffect(() => {
-		function listener(event: string, data: ListenerData) {
+		function listener(
+			event: string,
+			data: SetListenerData | DeleteListenerData | ApplyListenerData
+		) {
 			if (filter(event, data)) forceUpdate();
 		}
 		nest.on(Events.UPDATE, listener);
 		if (!transient) {
 			nest.on(Events.SET, listener);
 			nest.on(Events.DELETE, listener);
+			nest.on(Events.APPLY, listener);
 		}
 
 		return () => {
@@ -30,6 +38,7 @@ export default function useNest<Data>(
 			if (!transient) {
 				nest.off(Events.SET, listener);
 				nest.off(Events.DELETE, listener);
+				nest.off(Events.APPLY, listener);
 			}
 		};
 	}, []);
