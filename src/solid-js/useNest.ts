@@ -1,33 +1,54 @@
 import { createSignal, onCleanup } from "solid-js";
 import {
+	ListenerData,
+	BulkListenerData,
 	ApplyListenerData,
 	DeleteListenerData,
 	SetListenerData,
 } from "../EventEmitter";
 import Nest from "../Nest";
 import Events from "../Events";
+import set from "../utils/set";
+import get from "../utils/get";
 
 export default function useNest<Data>(
 	nest: Nest<Data>,
 	transient: boolean = false,
 	filter: (
 		event: string,
-		data: SetListenerData | DeleteListenerData | ApplyListenerData
+		data:
+			| BulkListenerData
+			| SetListenerData
+			| DeleteListenerData
+			| ApplyListenerData
 	) => boolean = () => true
 ): Data {
 	const signals = {};
 
 	function listener(
 		event: string,
-		data: SetListenerData | DeleteListenerData | ApplyListenerData
+		data:
+			| BulkListenerData
+			| SetListenerData
+			| DeleteListenerData
+			| ApplyListenerData
 	) {
 		if (filter(event, data)) {
 			// Update the proper signal.
-			signals[data.path.join(",")]?.set(void 0);
+			switch (event) {
+				case Events.BULK:
+					for (const bulkBit of data as BulkListenerData) {
+						get(signals, bulkBit.path).set(void 0);
+					}
+					return;
+				default:
+					return void get(signals, (data as ListenerData).path).set(void 0);
+			}
 		}
 	}
 	nest.on(Events.UPDATE, listener);
 	if (!transient) {
+		nest.on(Events.BULK, listener);
 		nest.on(Events.SET, listener);
 		nest.on(Events.DELETE, listener);
 		nest.on(Events.APPLY, listener);
@@ -36,28 +57,32 @@ export default function useNest<Data>(
 	onCleanup(() => {
 		nest.off(Events.UPDATE, listener);
 		if (!transient) {
+			nest.off(Events.BULK, listener);
 			nest.off(Events.SET, listener);
 			nest.off(Events.DELETE, listener);
 			nest.off(Events.APPLY, listener);
 		}
 	});
 
-	function createProxy(target: any, root: any, path: string[]) {
+	function createProxy(target: any, root: any, path: (string | symbol)[]) {
 		return new Proxy(target, {
-			get(target, property: string) {
-				const newPath: string[] = [...path, property];
-				const newPathString = newPath.join(",");
+			get(target, property: string | symbol) {
+				const newPath: (string | symbol)[] = [...path, property];
+
+				let signal = get(signals, newPath);
 
 				// If the signal doesn't exist, create it.
-				if (!signals.hasOwnProperty(newPathString)) {
+				if (!signal) {
 					// Maybe try to get rid of { equals: false } eventually.
 					// The problem is UPDATE which is controlled by the user doesn't pass a data.value.
-					const [get, set] = createSignal(target[property], { equals: false });
-					signals[newPathString] = { get, set };
+					const [getter, setter] = createSignal(target[property], {
+						equals: false,
+					});
+					set(signals, newPath, (signal = { get: getter, set: setter }));
 				}
 
 				// Call get on the signal.
-				signals[newPathString].get();
+				signal.get();
 
 				// If it's not an ending, deep proxy it more.
 				// Otherwise return the value.

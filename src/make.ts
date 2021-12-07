@@ -128,10 +128,6 @@ export default function make<Data extends object>(
 			if (!transient) {
 				// Run bulk event.
 				emitter.emit<Events.BULK>(Events.BULK, stackedEvents);
-				// Run the normal stacked events.
-				for (const event of stackedEvents) {
-					emitter.emit(event.event, event);
-				}
 			}
 		},
 		on: emitter.on.bind(emitter),

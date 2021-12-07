@@ -3,6 +3,7 @@ import {
 	ApplyListenerData,
 	DeleteListenerData,
 	SetListenerData,
+	BulkListenerData,
 } from "../EventEmitter";
 import Nest from "../Nest";
 import Events from "../Events";
@@ -12,7 +13,11 @@ export default function useNest<Data>(
 	transient: boolean = false,
 	filter: (
 		event: string,
-		data: SetListenerData | DeleteListenerData | ApplyListenerData
+		data:
+			| BulkListenerData
+			| SetListenerData
+			| DeleteListenerData
+			| ApplyListenerData
 	) => boolean = () => true
 ): Data {
 	// @ts-ignore Keep this here for React DevTools. It's not used and TS doesn't like that.
@@ -22,12 +27,17 @@ export default function useNest<Data>(
 	useEffect(() => {
 		function listener(
 			event: string,
-			data: SetListenerData | DeleteListenerData | ApplyListenerData
+			data:
+				| BulkListenerData
+				| SetListenerData
+				| DeleteListenerData
+				| ApplyListenerData
 		) {
 			if (filter(event, data)) forceUpdate();
 		}
 		nest.on(Events.UPDATE, listener);
 		if (!transient) {
+			nest.on(Events.BULK, listener);
 			nest.on(Events.SET, listener);
 			nest.on(Events.DELETE, listener);
 			nest.on(Events.APPLY, listener);
@@ -36,6 +46,7 @@ export default function useNest<Data>(
 		return () => {
 			nest.off(Events.UPDATE, listener);
 			if (!transient) {
+				nest.off(Events.BULK, listener);
 				nest.off(Events.SET, listener);
 				nest.off(Events.DELETE, listener);
 				nest.off(Events.APPLY, listener);

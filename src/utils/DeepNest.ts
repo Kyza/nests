@@ -4,19 +4,37 @@ import set from "./set";
 export default function DeepNest<Data extends object>(
 	target: any,
 	root: any,
-	path: string[],
+	path: (string | symbol)[],
 
 	options: { deep?: boolean } & NestOptions = { deep: true },
 
 	traps?: {
-		get?: (target: any, key: string, path: string[], value: any) => void;
-		set?: (target: any, key: string, path: string[], value: any) => void;
-		has?: (target: any, key: string, path: string[]) => void;
-		deleteProperty?: (target: any, key: string, path: string[]) => void;
+		get?: (
+			target: any,
+			key: string | symbol,
+			path: (string | symbol)[],
+			value: any
+		) => void;
+		set?: (
+			target: any,
+			key: string | symbol,
+			path: (string | symbol)[],
+			value: any
+		) => void;
+		has?: (
+			target: any,
+			key: string | symbol,
+			path: (string | symbol)[]
+		) => void;
+		deleteProperty?: (
+			target: any,
+			key: string | symbol,
+			path: (string | symbol)[]
+		) => void;
 		apply?: (
 			target: any,
-			key: string,
-			path: string[],
+			key: string | symbol,
+			path: (string | symbol)[],
 			thisArg: any,
 			args: any[],
 			value: any
@@ -27,8 +45,8 @@ export default function DeepNest<Data extends object>(
 	options.deep ??= true;
 
 	const nestTraps: ProxyHandler<Data> = {
-		get(target, key: string) {
-			const newPath: string[] = [...path, key];
+		get(target, key: string | symbol) {
+			const newPath: (string | symbol)[] = [...path, key];
 			let value = target[key];
 
 			const override = traps?.get?.(target, key, newPath, value);
@@ -53,14 +71,14 @@ export default function DeepNest<Data extends object>(
 			}
 			return value;
 		},
-		set(target, key: string, value) {
+		set(target, key, value) {
 			const newPath = [...path, key];
 			root = set(root, newPath, value);
 			traps?.set?.(target, key, newPath, value);
 			// This needs to return true or it errors. /shrug
 			return true;
 		},
-		deleteProperty(target, key: string) {
+		deleteProperty(target, key) {
 			if (delete target[key]) {
 				traps?.deleteProperty?.(target, key, [...path, key]);
 				return true;

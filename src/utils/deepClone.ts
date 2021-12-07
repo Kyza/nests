@@ -51,7 +51,7 @@ export default function deepClone<Type extends object>(
 			// It's NEVER a good idea to randomly call the constructor.
 			// It could contain private properties.
 			// It could even be a primitive type.
-			// Returning as a leaf as the safest option.
+			// Returning as a leaf is the safest option.
 			return obj;
 	}
 }
