@@ -1,10 +1,11 @@
-import Events from "./Events";
-import DeepNest from "./utils/DeepNest";
-import EventEmitter, { BulkListenerData } from "./EventEmitter";
-import Nest from "./Nest";
-import deepClone from "./utils/deepClone";
+import Events from "./Events.js";
+import DeepNest from "./utils/DeepNest.js";
+import EventEmitter, { BulkListenerData } from "./EventEmitter.js";
+import Nest, { BulkOptions } from "./Nest.js";
+import deepClone from "./utils/deepClone.js";
 
-export type NestOptions = {
+export type NestOptions<Data> = {
+	bulks?: BulkOptions<Data>;
 	nestArrays?: boolean;
 	nestClasses?: boolean;
 	initialClone?: boolean;
@@ -15,7 +16,7 @@ export type NestOptions = {
 
 export default function make<Data extends object>(
 	data: Data = {} as Data,
-	options: NestOptions = {}
+	options: NestOptions<Data> = {}
 ): Nest<Data> {
 	// No shenanigans.
 	options = deepClone(options);
@@ -76,19 +77,19 @@ export default function make<Data extends object>(
 			});
 		},
 		set store(value) {
-			internalData = cloneFunction(value);
+			Object.assign(internalData, cloneFunction(value));
 		},
 		get state() {
 			return internalData;
 		},
 		set state(value) {
-			internalData = cloneFunction(value);
+			Object.assign(internalData, cloneFunction(value));
 		},
 		get ghost() {
 			return DeepNest<Data>(internalData, internalData, [], options);
 		},
 		set ghost(value) {
-			internalData = cloneFunction(value);
+			Object.assign(internalData, cloneFunction(value));
 		},
 		bulk: function (callback, transient = false) {
 			const stackedEvents: BulkListenerData = [];
@@ -122,9 +123,8 @@ export default function make<Data extends object>(
 			if (shouldCancel) return;
 
 			// Set the state all in one go.
-			internalData = stateClone;
+			Object.assign(internalData, stateClone);
 
-			// Run the events.
 			if (!transient) {
 				// Run bulk event.
 				emitter.emit<Events.BULK>(Events.BULK, stackedEvents);

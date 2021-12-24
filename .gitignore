@@ -3,6 +3,10 @@
 /test.js
 /test
 .pnpm-debug.log
+/extension
+/types
+/esm
+/cjs
 
 # Logs
 

@@ -13,8 +13,11 @@ export default function deepClone<Type extends object>(
 	// Nullish should be a leaf.
 	if (obj == null) return obj;
 
+	// Apparently this is really slow. Maybe investigate it later.
+	const constructor = obj.constructor;
+
 	// Handle basic objects.
-	if (obj.constructor === Object) {
+	if (constructor === Object) {
 		const cloneObj = {} as Type;
 		for (const key in obj) {
 			(cloneObj as any)[key] = deepClone<object>((obj as any)[key], override);
@@ -23,7 +26,7 @@ export default function deepClone<Type extends object>(
 	}
 
 	// Handle classes.
-	switch (obj.constructor) {
+	switch (constructor) {
 		case Date:
 			return new Date((obj as Date).getTime()) as Type;
 		case RegExp:

@@ -1,41 +1,22 @@
 {
 	"name": "nests",
-	"version": "3.0.0-alpha.4",
+	"version": "3.0.0-alpha.15",
 	"description": "Fast and easy state storage with a lot of control.",
 	"main": "./cjs/index.js",
 	"module": "./esm/index.js",
 	"types": "./types/index.d.js",
-	"exports": {
-		"./package.json": "./package.json",
-		".": {
-			"default": "./cjs/index.js",
-			"module": "./esm/index.js",
-			"import": "./mjs/index.mjs",
-			"types": "./types/index.d.ts"
-		},
-		"./react": {
-			"default": "./cjs/react/index.js",
-			"module": "./esm/react/index.js",
-			"import": "./mjs/react/index.mjs",
-			"types": "./types/react/index.d.ts"
-		},
-		"./solid-js": {
-			"default": "./cjs/solid-js/index.js",
-			"module": "./esm/solid-js/index.js",
-			"import": "./mjs/solid-js/index.mjs",
-			"types": "./types/solid-js/index.d.ts"
-		}
-	},
 	"sideEffects": false,
 	"files": [
-		"**"
+		"esm",
+		"cjs",
+		"types"
 	],
 	"scripts": {
-		"build": "npx zx ./scripts/build.mjs && npx minified-size ./lib/esm/*.js ./lib/esm/utils/*.js",
+		"build": "npx zx ./scripts/build.mjs && npx minified-size ./esm/**/*.js",
 		"dev": "npx swc ./src/ -d ./dev/ --watch",
-		"pub": "cd ./lib && npm publish && cd ..",
-		"pub-alpha": "cd ./lib && npm publish --tag alpha && cd ..",
-		"pub-beta": "cd ./lib && npm publish --tag beta && cd ..",
+		"pub": "npm publish",
+		"pub-alpha": "npm publish --tag alpha",
+		"pub-beta": "npm publish --tag beta",
 		"test": "tsc --project tsconfig.test.json && jest ./test/test.js"
 	},
 	"repository": {
@@ -55,7 +36,8 @@
 		"deep",
 		"react",
 		"immer",
-		"solid-js"
+		"solid-js",
+		"immutable"
 	],
 	"author": "Kyza",
 	"license": "MIT",
@@ -67,6 +49,7 @@
 		"@types/react": "^17.0.19",
 		"@types/react-dom": "^17.0.9",
 		"chokidar": "^3.5.2",
+		"fs-extra": "^10.0.0",
 		"jest": "^27.3.1",
 		"minified-size": "^2.3.0",
 		"react": "^17.0.2",

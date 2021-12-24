@@ -4,9 +4,9 @@ import {
 	DeleteListenerData,
 	SetListenerData,
 	BulkListenerData,
-} from "../EventEmitter";
-import Nest from "../Nest";
-import Events from "../Events";
+} from "../../EventEmitter";
+import Nest from "../../Nest";
+import Events from "../../Events";
 
 export default function useNest<Data>(
 	nest: Nest<Data>,

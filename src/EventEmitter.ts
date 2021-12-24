@@ -1,4 +1,4 @@
-import Events from "./Events";
+import Events from "./Events.js";
 
 // The types of data that can be emitted.
 export type ListenerData = {

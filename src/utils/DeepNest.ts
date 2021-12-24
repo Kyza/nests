@@ -1,12 +1,12 @@
-import { NestOptions } from "../make";
-import set from "./set";
+import { NestOptions } from "../make.js";
+import set from "./set.js";
 
 export default function DeepNest<Data extends object>(
 	target: any,
 	root: any,
 	path: (string | symbol)[],
 
-	options: { deep?: boolean } & NestOptions = { deep: true },
+	options: { deep?: boolean } & NestOptions<Data> = { deep: true },
 
 	traps?: {
 		get?: (

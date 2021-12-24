@@ -1,7 +1,7 @@
 export default function set<Type>(
 	obj: Type,
 	path: (string | symbol)[],
-	value: any
+	value: any,
 ): Type {
 	let current = obj;
 	for (let i = 0; i < path.length - 1; i++) {

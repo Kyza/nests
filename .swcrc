@@ -6,11 +6,11 @@
 			"decorators": false,
 			"dynamicImport": false
 		},
-		"target": "es2015",
+		"target": "es2020",
 		"loose": false
 	},
 	"module": {
-		"type": "commonjs",
+		"type": "es6",
 		"strict": false,
 		"strictMode": true,
 		"lazy": false,

@@ -5,11 +5,21 @@ import {
 	ApplyListenerData,
 	DeleteListenerData,
 	SetListenerData,
-} from "../EventEmitter";
-import Nest from "../Nest";
-import Events from "../Events";
-import set from "../utils/set";
-import get from "../utils/get";
+} from "../../EventEmitter";
+import Nest from "../../Nest";
+import Events from "../../Events";
+import set from "../../utils/set";
+
+// A function that performs a deep get on an object.
+function get(target: any, path: (string | symbol)[]) {
+	let value = target;
+	for (const key of path) {
+		// @ts-ignore
+		if (!Object.hasOwn(value, key)) return;
+		value = value[key];
+	}
+	return value;
+}
 
 export default function useNest<Data>(
 	nest: Nest<Data>,
@@ -37,12 +47,30 @@ export default function useNest<Data>(
 			// Update the proper signal.
 			switch (event) {
 				case Events.BULK:
+					// Iterate through the list of changes and update each unique signal.
+					// If something has changed it only needs to be updated once.
+					const events = new Set<string>();
 					for (const bulkBit of data as BulkListenerData) {
-						get(signals, bulkBit.path).set(void 0);
+						const hash = bulkBit.path.join(",");
+						if (!events.has(hash)) {
+							signals[hash]?.set(bulkBit.value);
+							events.add(hash);
+						}
 					}
 					return;
+				case Events.UPDATE:
+					// This is very slow. Symbols work but are even slower.
+					return void signals[(data as ListenerData).path.join(",")]?.set(
+						// Using a Symbol makes it always different, so we can have difference checking while still being able to force update on UPDATE.
+						// Not sure how I feel about this. Maybe it could be better designed.
+						Symbol()
+					);
 				default:
-					return void get(signals, (data as ListenerData).path).set(void 0);
+					// See duplicate in UPDATE case above.
+					return void signals[(data as ListenerData).path.join(",")]?.set(
+						// @ts-ignore This value could exist but I'm not expresssing that yet.
+						data.value
+					);
 			}
 		}
 	}
@@ -67,18 +95,15 @@ export default function useNest<Data>(
 	function createProxy(target: any, root: any, path: (string | symbol)[]) {
 		return new Proxy(target, {
 			get(target, property: string | symbol) {
-				const newPath: (string | symbol)[] = [...path, property];
+				const newPath = [...path, property];
+				const hash = newPath.join(",");
 
-				let signal = get(signals, newPath);
+				let signal = signals[hash];
 
 				// If the signal doesn't exist, create it.
-				if (!signal) {
-					// Maybe try to get rid of { equals: false } eventually.
-					// The problem is UPDATE which is controlled by the user doesn't pass a data.value.
-					const [getter, setter] = createSignal(target[property], {
-						equals: false,
-					});
-					set(signals, newPath, (signal = { get: getter, set: setter }));
+				if (signal == null) {
+					const [getter, setter] = createSignal(target[property]);
+					signals[hash] = signal = { get: getter, set: setter };
 				}
 
 				// Call get on the signal.
