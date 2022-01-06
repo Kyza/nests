@@ -6,13 +6,13 @@ import {
 	DeleteListenerData,
 	SetListenerData,
 } from "../../EventEmitter";
-import Nest from "../../Nest";
 import Events from "../../Events";
 import on from "../../on";
+import { shallowSymbol } from "../../symbols";
 import symbolJoin from "../../utils/symbolJoin";
 
 export default function useNest<Data>(
-	nest: Nest<Data>,
+	nest: Data,
 	transient: boolean = false,
 	filter: (
 		data:
@@ -90,8 +90,15 @@ export default function useNest<Data>(
 			get(target, key: string | symbol) {
 				// Temporary fix for weirdness.
 				// Uncaught (in promise) TypeError: '#<Object>' returned for property 'Symbol(Symbol.toPrimitive)' of object '#<Object>' is not a function
-				if (typeof key === "symbol" && [Symbol.toPrimitive].includes(key))
-					return;
+				if (typeof key === "symbol") {
+					switch (key) {
+						case Symbol.toPrimitive:
+							return;
+						case shallowSymbol:
+							// If the object is transformed to shallow it needs to be rewrapped.
+							return createProxy(target[shallowSymbol], root, path);
+					}
+				}
 
 				const newPath = [...path, key];
 				const hash = symbolJoin(newPath, ".");

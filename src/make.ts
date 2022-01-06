@@ -82,12 +82,6 @@ export default function make<Data extends object>(
 				}
 
 				let value = target[key];
-
-				// const override = traps?.get?.(target, key, newPath, value);
-				// if (override != null) {
-				// 	return override;
-				// }
-
 				if (value != null) {
 					if (!nestOptions.nestArrays && Array.isArray(value)) {
 						return value;
@@ -125,7 +119,6 @@ export default function make<Data extends object>(
 					emitters[emitterPaths]?.emit<Events.SET>(Events.SET, emitData);
 				}
 
-				// traps?.set?.(target, key, newPath, value);
 				// This needs to return true or it errors. /shrug
 				return true;
 			},
@@ -180,18 +173,6 @@ export default function make<Data extends object>(
 				return key in target;
 			},
 		};
-
-		// if (options.deep) {
-		// 	nestTraps.has = function (target, property) {
-		// 		if (
-		// 			typeof target[property] === "object" &&
-		// 			Object.keys(target[property]).length === 0
-		// 		) {
-		// 			return false;
-		// 		}
-		// 		return property in target;
-		// 	};
-		// }
 
 		return new Proxy(target, nestTraps);
 	}
