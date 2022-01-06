@@ -1,6 +1,6 @@
 import * as nests from "./src";
 
-const largeArray = new Array(100000).fill(0);
+const largeArray = new Array(1000000).fill(0);
 
 const nest = nests.make<any>({
 	cool: true,
@@ -11,15 +11,16 @@ const nest = nests.make<any>({
 nests.on(nests.Events.SET, [nest, "cool"], function (data) {
 	console.log("cool changed", data);
 });
-nests.on(nests.Events.SET, nest, function (data) {
-	console.log("nest changed", data);
-});
 
-nest.cool = false;
-nest.deep.nest = false;
+// Time how long it takes to unshift into the array using process.hrtime.
+const hrStart = process.hrtime();
+nest.array.unshift(0);
+const hrEnd = process.hrtime(hrStart);
+console.log(`hrtime: ${hrEnd[0] * 1000 + hrEnd[1] / 1000000}ms`);
 
-// Error!
-nests.shallow(nest).instant.deep.nest = false;
+nests.set(nest, { cool: true });
+
+console.log(nest);
 
 // test("base object nestClasses: false", () => {
 // 	const data = {

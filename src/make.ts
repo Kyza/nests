@@ -5,7 +5,12 @@ import deepClone from "./utils/deepClone.js";
 
 import set from "./utils/set.js";
 
-import { eventEmittersSymbol, shallowSymbol, pathSymbol } from "./symbols.js";
+import {
+	eventEmittersSymbol,
+	shallowSymbol,
+	pathSymbol,
+	targetSymbol,
+} from "./symbols.js";
 
 export type NestOptions<Data> = {
 	bulks?: BulkOptions<Data>;
@@ -79,6 +84,8 @@ export default function make<Data extends object>(
 							[...path],
 							Object.assign(options, { deep: false })
 						);
+					case targetSymbol:
+						return target;
 				}
 
 				let value = target[key];
