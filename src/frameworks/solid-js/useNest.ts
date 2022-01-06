@@ -8,24 +8,13 @@ import {
 } from "../../EventEmitter";
 import Nest from "../../Nest";
 import Events from "../../Events";
-import set from "../../utils/set";
-
-// A function that performs a deep get on an object.
-function get(target: any, path: (string | symbol)[]) {
-	let value = target;
-	for (const key of path) {
-		// @ts-ignore
-		if (!Object.hasOwn(value, key)) return;
-		value = value[key];
-	}
-	return value;
-}
+import on from "../../on";
+import symbolJoin from "../../utils/symbolJoin";
 
 export default function useNest<Data>(
 	nest: Nest<Data>,
 	transient: boolean = false,
 	filter: (
-		event: string,
 		data:
 			| BulkListenerData
 			| SetListenerData
@@ -36,16 +25,16 @@ export default function useNest<Data>(
 	const signals = {};
 
 	function listener(
-		event: string,
 		data:
 			| BulkListenerData
 			| SetListenerData
 			| DeleteListenerData
 			| ApplyListenerData
 	) {
-		if (filter(event, data)) {
+		if (filter(data)) {
 			// Update the proper signal.
-			switch (event) {
+			// @ts-ignore
+			switch (data.event) {
 				case Events.BULK:
 					// Iterate through the list of changes and update each unique signal.
 					// If something has changed it only needs to be updated once.
@@ -60,49 +49,61 @@ export default function useNest<Data>(
 					return;
 				case Events.UPDATE:
 					// This is very slow. Symbols work but are even slower.
-					return void signals[(data as ListenerData).path.join(",")]?.set(
+					return void signals[
+						symbolJoin((data as ListenerData).path, ".")
+					]?.set(
 						// Using a Symbol makes it always different, so we can have difference checking while still being able to force update on UPDATE.
 						// Not sure how I feel about this. Maybe it could be better designed.
 						Symbol()
 					);
 				default:
 					// See duplicate in UPDATE case above.
-					return void signals[(data as ListenerData).path.join(",")]?.set(
+					return void signals[
+						symbolJoin((data as ListenerData).path, ".")
+					]?.set(
 						// @ts-ignore This value could exist but I'm not expresssing that yet.
 						data.value
 					);
 			}
 		}
 	}
-	nest.on(Events.UPDATE, listener);
+
+	const unsubUpdate = on(Events.UPDATE, nest, listener);
+	let unsubEvents;
 	if (!transient) {
-		nest.on(Events.BULK, listener);
-		nest.on(Events.SET, listener);
-		nest.on(Events.DELETE, listener);
-		nest.on(Events.APPLY, listener);
+		unsubEvents = on(
+			[Events.BULK, Events.SET, Events.DELETE, Events.APPLY],
+			nest,
+			listener
+		);
 	}
 
 	onCleanup(() => {
-		nest.off(Events.UPDATE, listener);
+		unsubUpdate();
 		if (!transient) {
-			nest.off(Events.BULK, listener);
-			nest.off(Events.SET, listener);
-			nest.off(Events.DELETE, listener);
-			nest.off(Events.APPLY, listener);
+			unsubEvents?.();
 		}
 	});
 
 	function createProxy(target: any, root: any, path: (string | symbol)[]) {
 		return new Proxy(target, {
-			get(target, property: string | symbol) {
-				const newPath = [...path, property];
-				const hash = newPath.join(",");
+			get(target, key: string | symbol) {
+				// Temporary fix for weirdness.
+				// Uncaught (in promise) TypeError: '#<Object>' returned for property 'Symbol(Symbol.toPrimitive)' of object '#<Object>' is not a function
+				if (typeof key === "symbol" && [Symbol.toPrimitive].includes(key))
+					return;
+
+				const newPath = [...path, key];
+				const hash = symbolJoin(newPath, ".");
 
 				let signal = signals[hash];
 
 				// If the signal doesn't exist, create it.
 				if (signal == null) {
-					const [getter, setter] = createSignal(target[property]);
+					// Make sure to test if the property exists or not since Solid will fail to create the signal if given an empty Proxy.
+					const [getter, setter] = createSignal(
+						!(key in target) ? "undefined" : target[key]
+					);
 					signals[hash] = signal = { get: getter, set: setter };
 				}
 
@@ -111,7 +112,7 @@ export default function useNest<Data>(
 
 				// If it's not an ending, deep proxy it more.
 				// Otherwise return the value.
-				const value = target[property];
+				const value = target[key];
 				if (typeof value === "object") {
 					return createProxy(value, root, newPath);
 				}
@@ -122,5 +123,5 @@ export default function useNest<Data>(
 	}
 
 	// Wrap the state in a deep proxy to automatically call get on the signals for automatic updates that are compatible and smooth with Solid.
-	return createProxy(nest.state, nest.state, []);
+	return createProxy(nest, nest, []);
 }

@@ -30,7 +30,6 @@ export type ListenerReceive<EventType> = EventType extends Events.BULK
 	? ApplyListenerData
 	: ListenerData;
 export type ListenerFunction<EventType> = (
-	event: keyof typeof Events,
 	data: ListenerReceive<EventType>
 ) => void;
 
@@ -53,31 +52,47 @@ export default class EventEmitter {
 	}
 
 	on<EventType extends keyof typeof Events>(
-		event: EventType,
+		events: EventType | EventType[],
 		listener: ListenerFunction<EventType>
 	) {
-		if (this.listeners[event].has(listener)) {
-			throw Error(`This listener on ${event as string} already exists.`);
+		const single = (event: EventType) => {
+			if (this.listeners[event].has(listener)) {
+				throw Error(`This listener on ${event as string} already exists.`);
+			}
+			this.listeners[event].add(listener);
+		};
+		if (Array.isArray(events)) {
+			for (const event of events) {
+				single(event);
+			}
+		} else {
+			single(events);
 		}
-		this.listeners[event].add(listener);
 	}
 
 	once<EventType extends keyof typeof Events>(
-		event: EventType,
+		events: EventType | EventType[],
 		listener: ListenerFunction<EventType>
 	) {
-		const onceListener: ListenerFunction<EventType> = (event, data) => {
-			this.off(event, onceListener);
-			listener(event, data);
+		const onceListener: ListenerFunction<EventType> = (data) => {
+			this.off(events, onceListener);
+			listener(data);
 		};
-		this.on(event, onceListener);
+
+		this.on(events, onceListener);
 	}
 
 	off<EventType extends keyof typeof Events>(
-		event: EventType,
+		events: EventType | EventType[],
 		listener: ListenerFunction<EventType>
 	) {
-		this.listeners[event].delete(listener);
+		if (Array.isArray(events)) {
+			for (const event of events) {
+				this.listeners[event].delete(listener);
+			}
+		} else {
+			this.listeners[events].delete(listener);
+		}
 	}
 
 	emit<EventType extends keyof typeof Events>(
@@ -85,7 +100,7 @@ export default class EventEmitter {
 		data: ListenerReceive<EventType>
 	) {
 		for (const listener of this.listeners[event]) {
-			listener(event, data);
+			listener(data);
 		}
 	}
 }

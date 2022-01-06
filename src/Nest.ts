@@ -32,6 +32,9 @@ export default interface Nest<Data> extends NestAccessors<Data> {
 	once: typeof EventEmitter.prototype.once;
 	off: typeof EventEmitter.prototype.off;
 
+	// Easily clone the data.
+	clone: () => Nest<Data>;
+
 	// Emitter.
 	emitter: EventEmitter;
 }

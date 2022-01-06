@@ -7,12 +7,12 @@ import {
 } from "../../EventEmitter";
 import Nest from "../../Nest";
 import Events from "../../Events";
+import on from "../../on";
 
 export default function useNest<Data>(
 	nest: Nest<Data>,
 	transient: boolean = false,
 	filter: (
-		event: string,
 		data:
 			| BulkListenerData
 			| SetListenerData
@@ -26,30 +26,30 @@ export default function useNest<Data>(
 
 	useEffect(() => {
 		function listener(
-			event: string,
 			data:
 				| BulkListenerData
 				| SetListenerData
 				| DeleteListenerData
 				| ApplyListenerData
 		) {
-			if (filter(event, data)) forceUpdate();
+			if (filter(data)) forceUpdate();
 		}
-		nest.on(Events.UPDATE, listener);
+		on(Events.UPDATE, nest, listener);
 		if (!transient) {
-			nest.on(Events.BULK, listener);
-			nest.on(Events.SET, listener);
-			nest.on(Events.DELETE, listener);
-			nest.on(Events.APPLY, listener);
+			on(
+				[Events.BULK, Events.SET, Events.DELETE, Events.APPLY],
+				nest,
+				listener
+			);
 		}
 
 		return () => {
 			nest.off(Events.UPDATE, listener);
 			if (!transient) {
-				nest.off(Events.BULK, listener);
-				nest.off(Events.SET, listener);
-				nest.off(Events.DELETE, listener);
-				nest.off(Events.APPLY, listener);
+				nest.off(
+					[Events.BULK, Events.SET, Events.DELETE, Events.APPLY],
+					listener
+				);
 			}
 		};
 	}, []);

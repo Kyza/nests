@@ -1,6 +1,6 @@
 {
 	"name": "nests",
-	"version": "3.0.0-alpha.15",
+	"version": "4.0.0-alpha.0",
 	"description": "Fast and easy state storage with a lot of control.",
 	"main": "./cjs/index.js",
 	"module": "./esm/index.js",
@@ -17,7 +17,7 @@
 		"pub": "npm publish",
 		"pub-alpha": "npm publish --tag alpha",
 		"pub-beta": "npm publish --tag beta",
-		"test": "tsc --project tsconfig.test.json && jest ./test/test.js"
+		"test": "tsc --project tsconfig.test.json && node ./test/test.js"
 	},
 	"repository": {
 		"type": "git",
