@@ -100,7 +100,14 @@ export default class EventEmitter {
 		data: ListenerReceive<EventType>
 	) {
 		for (const listener of this.listeners[event]) {
-			listener(data);
+			try {
+				listener(data);
+			} catch (e) {
+				console.group(`[Nests] Error in listener:`);
+				console.log(event, data);
+				console.error(e);
+				console.groupEnd();
+			}
 		}
 	}
 }

@@ -1,6 +1,23 @@
 import * as nests from "./src";
 
-const largeArray = new Array(1000000).fill(0);
+// A debounce function.
+function debounce(func: Function, wait: number, immediate: boolean = false) {
+	let timeout: NodeJS.Timeout | null;
+	return function (this: any) {
+		const context = this;
+		const args = arguments;
+		const later = function () {
+			timeout = null;
+			if (!immediate) func.apply(context, args);
+		};
+		const callNow = immediate && !timeout;
+		clearTimeout(timeout);
+		timeout = setTimeout(later, wait);
+		if (callNow) func.apply(context, args);
+	};
+}
+
+const largeArray = new Array(100000).fill(0);
 
 const nest = nests.make<any>({
 	cool: true,
@@ -8,17 +25,25 @@ const nest = nests.make<any>({
 	array: largeArray,
 });
 
-nests.on(nests.Events.SET, [nest, "cool"], function (data) {
-	console.log("cool changed", data);
-});
+const startEvent = process.hrtime();
+nests.on(
+	nests.Events.SET,
+	nest,
+	debounce(function (data) {
+		console.log("changed", data);
+	}, 100)
+);
+const stopEvent = process.hrtime(startEvent);
+console.log(`Event: ${stopEvent[0] * 1000 + stopEvent[1] / 1000000}ms`);
 
 // Time how long it takes to unshift into the array using process.hrtime.
-const hrStart = process.hrtime();
-nest.array.unshift(0);
-const hrEnd = process.hrtime(hrStart);
-console.log(`hrtime: ${hrEnd[0] * 1000 + hrEnd[1] / 1000000}ms`);
+const startUnshift = process.hrtime();
+nest.array.unshift(1);
+const endUnshift = process.hrtime(startUnshift);
+console.log(`Array: ${endUnshift[0] * 1000 + endUnshift[1] / 1000000}ms`);
 
-nests.set(nest, { cool: true });
+nest.cool = false;
+// nests.set(nest, { cool: true });
 
 console.log(nest);
 
