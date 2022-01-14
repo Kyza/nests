@@ -5,10 +5,15 @@ import {
 	ApplyListenerData,
 	DeleteListenerData,
 	SetListenerData,
-} from "../../EventEmitter";
+} from "../../utils/EventEmitter";
 import Events from "../../Events";
-import on from "../../on";
-import { shallowSymbol } from "../../symbols";
+import { on } from "../../listeners";
+import {
+	deepSymbol,
+	loudSymbol,
+	shallowSymbol,
+	silentSymbol,
+} from "../../symbols";
 import symbolJoin from "../../utils/symbolJoin";
 
 export default function useNest<Data>(
@@ -69,9 +74,9 @@ export default function useNest<Data>(
 	}
 
 	const unsubUpdate = on(Events.UPDATE, nest, listener);
-	let unsubEvents;
+	let unsubRest;
 	if (!transient) {
-		unsubEvents = on(
+		unsubRest = on(
 			[Events.BULK, Events.SET, Events.DELETE, Events.APPLY],
 			nest,
 			listener
@@ -80,9 +85,7 @@ export default function useNest<Data>(
 
 	onCleanup(() => {
 		unsubUpdate();
-		if (!transient) {
-			unsubEvents?.();
-		}
+		unsubRest?.();
 	});
 
 	function createProxy(target: any, root: any, path: (string | symbol)[]) {
@@ -95,7 +98,10 @@ export default function useNest<Data>(
 						case Symbol.toPrimitive:
 							return;
 						case shallowSymbol:
-							// If the object is transformed to shallow it needs to be rewrapped.
+						case deepSymbol:
+						case silentSymbol:
+						case loudSymbol:
+							// If the object is transformed it needs to be rewrapped.
 							return createProxy(target[shallowSymbol], root, path);
 					}
 				}

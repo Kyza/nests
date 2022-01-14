@@ -1,4 +1,4 @@
-import * as nests from "./src";
+import nests from "./src";
 
 // A debounce function.
 function debounce(func: Function, wait: number, immediate: boolean = false) {
@@ -25,25 +25,21 @@ const nest = nests.make<any>({
 	array: largeArray,
 });
 
-const startEvent = process.hrtime();
-nests.on(
-	nests.Events.SET,
-	nest,
-	debounce(function (data) {
-		console.log("changed", data);
-	}, 100)
-);
-const stopEvent = process.hrtime(startEvent);
-console.log(`Event: ${stopEvent[0] * 1000 + stopEvent[1] / 1000000}ms`);
-
-// Time how long it takes to unshift into the array using process.hrtime.
-const startUnshift = process.hrtime();
-nest.array.unshift(1);
-const endUnshift = process.hrtime(startUnshift);
-console.log(`Array: ${endUnshift[0] * 1000 + endUnshift[1] / 1000000}ms`);
+nests.once(nests.Events.SET, nest, (data) => {
+	console.log("array", data);
+});
+nests.on(nests.Events.SET, [nest, "cool"], (data) => {
+	console.log("cool", data);
+});
 
 nest.cool = false;
-// nests.set(nest, { cool: true });
+nests.silent(nest).cool = true;
+try {
+	nests.shallow(nest).deep.in.nest = true;
+} catch {
+	console.log("Dies, good.");
+}
+nests.deep(nests.shallow(nest)).deep.in.nest = true;
 
 console.log(nest);
 

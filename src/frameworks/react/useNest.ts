@@ -4,10 +4,10 @@ import {
 	DeleteListenerData,
 	SetListenerData,
 	BulkListenerData,
-} from "../../EventEmitter";
+} from "../../utils/EventEmitter";
 import Nest from "../../Nest";
 import Events from "../../Events";
-import on from "../../on";
+import { on } from "../../listeners";
 
 export default function useNest<Data>(
 	nest: Nest<Data>,
@@ -34,9 +34,10 @@ export default function useNest<Data>(
 		) {
 			if (filter(data)) forceUpdate();
 		}
-		on(Events.UPDATE, nest, listener);
+		const unsubUpdate = on(Events.UPDATE, nest, listener);
+		let unsubRest;
 		if (!transient) {
-			on(
+			unsubRest = on(
 				[Events.BULK, Events.SET, Events.DELETE, Events.APPLY],
 				nest,
 				listener
@@ -44,13 +45,8 @@ export default function useNest<Data>(
 		}
 
 		return () => {
-			nest.off(Events.UPDATE, listener);
-			if (!transient) {
-				nest.off(
-					[Events.BULK, Events.SET, Events.DELETE, Events.APPLY],
-					listener
-				);
-			}
+			unsubUpdate();
+			unsubRest?.();
 		};
 	}, []);
 

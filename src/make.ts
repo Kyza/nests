@@ -1,5 +1,5 @@
 import Events from "./Events.js";
-import EventEmitter from "./EventEmitter.js";
+import EventEmitter from "./utils/EventEmitter.js";
 import { BulkOptions } from "./Nest.js";
 import deepClone from "./utils/deepClone.js";
 
@@ -9,7 +9,10 @@ import {
 	eventEmittersSymbol,
 	shallowSymbol,
 	pathSymbol,
-	targetSymbol,
+	originalSymbol,
+	silentSymbol,
+	deepSymbol,
+	loudSymbol,
 } from "./symbols.js";
 
 export type NestOptions<Data> = {
@@ -64,9 +67,10 @@ export default function make<Data extends object>(
 		target: any,
 		root: any,
 		path: (string | symbol)[],
-		options: { deep?: boolean } = {}
+		options: { deep?: boolean; silent?: boolean } = {}
 	): Data {
 		options.deep ??= true;
+		options.silent ??= false;
 
 		const nestTraps: ProxyHandler<Data> = {
 			get(target, key: string | symbol) {
@@ -84,7 +88,28 @@ export default function make<Data extends object>(
 							[...path],
 							Object.assign(options, { deep: false })
 						);
-					case targetSymbol:
+					case deepSymbol:
+						return DeepNest(
+							target,
+							root,
+							[...path],
+							Object.assign(options, { deep: true })
+						);
+					case silentSymbol:
+						return DeepNest(
+							target,
+							root,
+							[...path],
+							Object.assign(options, { silent: true })
+						);
+					case loudSymbol:
+						return DeepNest(
+							target,
+							root,
+							[...path],
+							Object.assign(options, { silent: false })
+						);
+					case originalSymbol:
 						return target;
 				}
 
@@ -112,25 +137,27 @@ export default function make<Data extends object>(
 				const newPath = [...path, key];
 				root = set(root, newPath, value);
 
-				const emitData = {
-					event: Events.SET,
-					path: newPath,
-					value,
-				};
-				// Emit to the base nest listeners.
-				emitters[""]?.emit<Events.SET>(Events.SET, emitData);
-				// Emit up the chain.
-				let emitterPaths = "";
-				for (let i = 0; i < newPath.length; i++) {
-					emitterPaths += (i === 0 ? "" : ".") + newPath[i].toString();
-					emitters[emitterPaths]?.emit<Events.SET>(Events.SET, emitData);
+				if (!options.silent) {
+					const emitData = {
+						event: Events.SET,
+						path: newPath,
+						value,
+					};
+					// Emit to the base nest listeners.
+					emitters[""]?.emit<Events.SET>(Events.SET, emitData);
+					// Emit up the chain.
+					let emitterPaths = "";
+					for (let i = 0; i < newPath.length; i++) {
+						emitterPaths += (i === 0 ? "" : ".") + newPath[i].toString();
+						emitters[emitterPaths]?.emit<Events.SET>(Events.SET, emitData);
+					}
 				}
 
 				// This needs to return true or it errors. /shrug
 				return true;
 			},
 			deleteProperty(target, key) {
-				if (delete target[key]) {
+				if (delete target[key] && !options.silent) {
 					const newPath = [...path, key];
 					const emitData = {
 						event: Events.SET,
@@ -154,18 +181,20 @@ export default function make<Data extends object>(
 			apply(target, thisArg, args) {
 				const value = (target as Function).apply(thisArg, args);
 
-				const emitData = {
-					event: Events.SET,
-					path: [...path],
-					value,
-				};
-				// Emit to the base nest listeners.
-				emitters[""]?.emit<Events.SET>(Events.SET, emitData);
-				// Emit up the chain.
-				let emitterPaths = "";
-				for (let i = 0; i < path.length; i++) {
-					emitterPaths += (i === 0 ? "" : ".") + path[i].toString();
-					emitters[emitterPaths]?.emit<Events.SET>(Events.SET, emitData);
+				if (!options.silent) {
+					const emitData = {
+						event: Events.SET,
+						path: [...path],
+						value,
+					};
+					// Emit to the base nest listeners.
+					emitters[""]?.emit<Events.SET>(Events.SET, emitData);
+					// Emit up the chain.
+					let emitterPaths = "";
+					for (let i = 0; i < path.length; i++) {
+						emitterPaths += (i === 0 ? "" : ".") + path[i].toString();
+						emitters[emitterPaths]?.emit<Events.SET>(Events.SET, emitData);
+					}
 				}
 
 				return value;

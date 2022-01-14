@@ -1,4 +1,4 @@
-import Events from "./Events.js";
+import Events from "../Events.js";
 
 // The types of data that can be emitted.
 export type ListenerData = {
@@ -41,9 +41,10 @@ export type EmitterListeners = {
 export type EmitterOptions = {};
 
 export default class EventEmitter {
+	static readonly offSymbol = Symbol("off");
 	options: EmitterOptions = {};
 	listeners = Object.values(Events).reduce<EmitterListeners>(
-		(acc, val: string) => ((acc[val] = new Set<ListenerFunction<any>>()), acc),
+		(acc, val: string) => ((acc[val] = new Set()), acc),
 		{}
 	);
 
@@ -54,8 +55,8 @@ export default class EventEmitter {
 	on<EventType extends keyof typeof Events>(
 		events: EventType | EventType[],
 		listener: ListenerFunction<EventType>
-	) {
-		const single = (event: EventType) => {
+	): Function {
+		const listen = (event: EventType) => {
 			if (this.listeners[event].has(listener)) {
 				throw Error(`This listener on ${event as string} already exists.`);
 			}
@@ -63,23 +64,22 @@ export default class EventEmitter {
 		};
 		if (Array.isArray(events)) {
 			for (const event of events) {
-				single(event);
+				listen(event);
 			}
 		} else {
-			single(events);
+			listen(events);
 		}
+		return () => this.off(events, listener);
 	}
 
 	once<EventType extends keyof typeof Events>(
 		events: EventType | EventType[],
 		listener: ListenerFunction<EventType>
-	) {
-		const onceListener: ListenerFunction<EventType> = (data) => {
-			this.off(events, onceListener);
-			listener(data);
+	): Function {
+		listener[EventEmitter.offSymbol] = () => {
+			this.off(events, listener);
 		};
-
-		this.on(events, onceListener);
+		return this.on(events, listener);
 	}
 
 	off<EventType extends keyof typeof Events>(
@@ -99,9 +99,10 @@ export default class EventEmitter {
 		event: keyof typeof Events,
 		data: ListenerReceive<EventType>
 	) {
-		for (const listener of this.listeners[event]) {
+		for (const listener of this.listeners[event].values()) {
 			try {
 				listener(data);
+				listener[EventEmitter.offSymbol]?.(data);
 			} catch (e) {
 				console.group(`[Nests] Error in listener:`);
 				console.log(event, data);

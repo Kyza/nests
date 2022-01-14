@@ -1,4 +1,4 @@
-import EventEmitter from "./EventEmitter.js";
+import EventEmitter from "./utils/EventEmitter.js";
 
 // Access points for the data.
 export type NestAccessors<Data> = {
