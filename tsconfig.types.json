@@ -1,9 +1,9 @@
 {
 	"compilerOptions": {
 		"outDir": "./types",
-		"target": "ES6",
+		"target": "ESNext",
 		"module": "ESNext",
-		"lib": ["ES6", "DOM"],
+		"lib": ["ESNext", "DOM"],
 		"moduleResolution": "node",
 		"esModuleInterop": true,
 		"allowSyntheticDefaultImports": true,

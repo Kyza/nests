@@ -1,9 +1,9 @@
 {
 	"compilerOptions": {
 		"outDir": "./cjs",
-		"target": "ES6",
+		"target": "ESNext",
 		"module": "CommonJS",
-		"lib": ["ES6", "DOM"],
+		"lib": ["ESNext", "DOM"],
 		"moduleResolution": "Node",
 		"esModuleInterop": true,
 		"allowSyntheticDefaultImports": true,

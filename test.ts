@@ -27,7 +27,7 @@ const nest = make<any>({
 });
 
 once(Events.SET, nest, (data) => {
-	console.log("array", data);
+	console.log("all", data);
 });
 on(Events.SET, [nest, "cool"], (data) => {
 	console.log("cool", data);
