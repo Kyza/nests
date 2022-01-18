@@ -5,12 +5,11 @@ import {
 	SetListenerData,
 	BulkListenerData,
 } from "../../utils/EventEmitter";
-import Nest from "../../Nest";
 import Events from "../../Events";
 import { on } from "../../listeners";
 
 export default function useNest<Data>(
-	nest: Nest<Data>,
+	nest: Data,
 	transient: boolean = false,
 	filter: (
 		data:
@@ -20,8 +19,8 @@ export default function useNest<Data>(
 			| ApplyListenerData
 	) => boolean = () => true
 ): Data {
-	// @ts-ignore Keep this here for React DevTools. It's not used and TS doesn't like that.
-	const value = useRef(nest.state);
+	// @ts-ignore Keep this here for React DevTools. It's not used and TS doesn't like that, but I don't want to turn off the option.
+	const value = useRef(nest);
 	const [, forceUpdate] = useReducer((n) => !n, !1);
 
 	useEffect(() => {
@@ -50,5 +49,5 @@ export default function useNest<Data>(
 		};
 	}, []);
 
-	return nest.state;
+	return nest;
 }

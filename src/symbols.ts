@@ -1,6 +1,6 @@
 export const eventEmittersSymbol = Symbol("eventListener");
 export const pathSymbol = Symbol("path");
-export const originalSymbol = Symbol("original");
+export const targetSymbol = Symbol("target");
 
 export const shallowSymbol = Symbol("shallow");
 export const deepSymbol = Symbol("deep");

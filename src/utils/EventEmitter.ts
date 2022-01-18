@@ -40,75 +40,163 @@ export type EmitterListeners = {
 
 export type EmitterOptions = {};
 
-export default class EventEmitter {
-	static readonly offSymbol = Symbol("off");
-	options: EmitterOptions = {};
-	listeners = Object.values(Events).reduce<EmitterListeners>(
-		(acc, val: string) => ((acc[val] = new Set()), acc),
-		{}
-	);
-
-	constructor(options: EmitterOptions = {}) {
-		Object.assign(this.options, options);
-	}
-
-	on<EventType extends keyof typeof Events>(
+export type EventEmitter = {
+	listeners: EmitterListeners;
+	on: <EventType extends keyof typeof Events>(
 		events: EventType | EventType[],
 		listener: ListenerFunction<EventType>
-	): Function {
-		const listen = (event: EventType) => {
-			if (this.listeners[event].has(listener)) {
-				throw Error(`This listener on ${event as string} already exists.`);
-			}
-			this.listeners[event].add(listener);
-		};
-		if (Array.isArray(events)) {
-			for (const event of events) {
-				listen(event);
-			}
-		} else {
-			listen(events);
-		}
-		return () => this.off(events, listener);
-	}
-
-	once<EventType extends keyof typeof Events>(
+	) => Function;
+	once: <EventType extends keyof typeof Events>(
 		events: EventType | EventType[],
 		listener: ListenerFunction<EventType>
-	): Function {
-		listener[EventEmitter.offSymbol] = () => {
-			this.off(events, listener);
-		};
-		return this.on(events, listener);
-	}
-
-	off<EventType extends keyof typeof Events>(
+	) => Function;
+	off: <EventType extends keyof typeof Events>(
 		events: EventType | EventType[],
 		listener: ListenerFunction<EventType>
-	) {
-		if (Array.isArray(events)) {
-			for (const event of events) {
-				this.listeners[event].delete(listener);
-			}
-		} else {
-			this.listeners[events].delete(listener);
-		}
-	}
-
-	emit<EventType extends keyof typeof Events>(
-		event: keyof typeof Events,
+	) => void;
+	emit: <EventType extends keyof typeof Events>(
+		event: EventType,
 		data: ListenerReceive<EventType>
-	) {
-		for (const listener of this.listeners[event].values()) {
-			try {
-				listener(data);
-				listener[EventEmitter.offSymbol]?.(data);
-			} catch (e) {
-				console.group(`[Nests] Error in listener:`);
-				console.log(event, data);
-				console.error(e);
-				console.groupEnd();
+	) => void;
+};
+
+export const offSymbol = Symbol("off");
+
+export default function makeEmitter(): EventEmitter {
+	return {
+		listeners: Object.values(Events).reduce<EmitterListeners>(
+			(acc, val: string) => ((acc[val] = new Set()), acc),
+			{}
+		),
+		on<EventType extends keyof typeof Events>(
+			events: EventType | EventType[],
+			listener: ListenerFunction<EventType>
+		): Function {
+			const listen = (event: EventType) => {
+				if (this.listeners[event].has(listener)) {
+					throw Error(`This listener on ${event} already exists.`);
+				}
+				this.listeners[event].add(listener);
+			};
+			if (Array.isArray(events)) {
+				for (const event of events) {
+					listen(event);
+				}
+			} else {
+				listen(events);
 			}
-		}
-	}
+			return () => this.off(events, listener);
+		},
+		once<EventType extends keyof typeof Events>(
+			events: EventType | EventType[],
+			listener: ListenerFunction<EventType>
+		): Function {
+			listener[offSymbol] = () => {
+				this.off(events, listener);
+			};
+			return this.on(events, listener);
+		},
+		off<EventType extends keyof typeof Events>(
+			events: EventType | EventType[],
+			listener: ListenerFunction<EventType>
+		) {
+			if (Array.isArray(events)) {
+				for (const event of events) {
+					this.listeners[event].delete(listener);
+				}
+			} else {
+				this.listeners[events].delete(listener);
+			}
+		},
+
+		emit<EventType extends keyof typeof Events>(
+			event: keyof typeof Events,
+			data: ListenerReceive<EventType>
+		) {
+			for (const listener of this.listeners[event].values()) {
+				try {
+					listener(data);
+					listener[offSymbol]?.(data);
+				} catch (e) {
+					console.group(`[Nests] Error in listener:`);
+					console.log(event, data);
+					console.error(e);
+					console.groupEnd();
+				}
+			}
+		},
+	} as EventEmitter;
 }
+
+// export default class EventEmitter {
+// 	static readonly offSymbol = Symbol("off");
+// 	options: EmitterOptions = {};
+// 	listeners = Object.values(Events).reduce<EmitterListeners>(
+// 		(acc, val: string) => ((acc[val] = new Set()), acc),
+// 		{}
+// 	);
+
+// 	constructor(options: EmitterOptions = {}) {
+// 		Object.assign(this.options, options);
+// 	}
+
+// 	on<EventType extends keyof typeof Events>(
+// 		events: EventType | EventType[],
+// 		listener: ListenerFunction<EventType>
+// 	): Function {
+// 		const listen = (event: EventType) => {
+// 			if (this.listeners[event].has(listener)) {
+// 				throw Error(`This listener on ${event as string} already exists.`);
+// 			}
+// 			this.listeners[event].add(listener);
+// 		};
+// 		if (Array.isArray(events)) {
+// 			for (const event of events) {
+// 				listen(event);
+// 			}
+// 		} else {
+// 			listen(events);
+// 		}
+// 		return () => this.off(events, listener);
+// 	}
+
+// 	once<EventType extends keyof typeof Events>(
+// 		events: EventType | EventType[],
+// 		listener: ListenerFunction<EventType>
+// 	): Function {
+// 		listener[EventEmitter.offSymbol] = () => {
+// 			this.off(events, listener);
+// 		};
+// 		return this.on(events, listener);
+// 	}
+
+// 	off<EventType extends keyof typeof Events>(
+// 		events: EventType | EventType[],
+// 		listener: ListenerFunction<EventType>
+// 	) {
+// 		if (Array.isArray(events)) {
+// 			for (const event of events) {
+// 				this.listeners[event].delete(listener);
+// 			}
+// 		} else {
+// 			this.listeners[events].delete(listener);
+// 		}
+// 	}
+
+// 	emit<EventType extends keyof typeof Events>(
+// 		event: keyof typeof Events,
+// 		data: ListenerReceive<EventType>
+// 	) {
+// 		for (const listener of this.listeners[event].values()) {
+// 			try {
+// 				listener(data);
+// 				listener[EventEmitter.offSymbol]?.(data);
+// 			} catch (e) {
+// 				console.group(`[Nests] Error in listener:`);
+// 				console.log(event, data);
+// 				console.error(e);
+// 				console.groupEnd();
+// 			}
+// 		}
+// 	}
+// }
