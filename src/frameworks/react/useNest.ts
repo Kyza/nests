@@ -4,9 +4,9 @@ import {
 	DeleteListenerData,
 	SetListenerData,
 	BulkListenerData,
-} from "../../utils/EventEmitter";
+} from "../../lib-utils/makeEmitter";
 import Events from "../../Events";
-import { on } from "../../listeners";
+import { on } from "../../utils";
 
 export default function useNest<Data>(
 	nest: Data,

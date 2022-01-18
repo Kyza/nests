@@ -5,16 +5,16 @@ import {
 	ApplyListenerData,
 	DeleteListenerData,
 	SetListenerData,
-} from "../../utils/EventEmitter";
+} from "../../lib-utils/makeEmitter";
 import Events from "../../Events";
-import { on } from "../../listeners";
+import { on } from "../../utils";
 import {
 	deepSymbol,
 	loudSymbol,
 	shallowSymbol,
 	silentSymbol,
 } from "../../symbols";
-import symbolJoin from "../../utils/symbolJoin";
+import symbolJoin from "../../lib-utils/symbolJoin";
 
 export default function useNest<Data>(
 	nest: Data,

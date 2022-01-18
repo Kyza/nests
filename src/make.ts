@@ -1,8 +1,8 @@
 import Events from "./Events.js";
-import { EventEmitter } from "./utils/EventEmitter.js";
-import deepClone from "./utils/deepClone.js";
+import { EventEmitter } from "./lib-utils/makeEmitter.js";
+import deepClone from "./lib-utils/deepClone.js";
 
-import set from "./utils/set.js";
+import set from "./lib-utils/set.js";
 
 import {
 	eventEmittersSymbol,

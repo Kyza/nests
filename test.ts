@@ -1,4 +1,5 @@
-import nests from "./src";
+import { make, Events } from "./src";
+import { on, once, off, silent, shallow, deep } from "./src/utils";
 
 // A debounce function.
 function debounce(func: Function, wait: number, immediate: boolean = false) {
@@ -19,27 +20,27 @@ function debounce(func: Function, wait: number, immediate: boolean = false) {
 
 const largeArray = new Array(100000).fill(0);
 
-const nest = nests.make<any>({
+const nest = make<any>({
 	cool: true,
 	deep: { nest: true },
 	array: largeArray,
 });
 
-nests.once(nests.Events.SET, nest, (data) => {
+once(Events.SET, nest, (data) => {
 	console.log("array", data);
 });
-nests.on(nests.Events.SET, [nest, "cool"], (data) => {
+on(Events.SET, [nest, "cool"], (data) => {
 	console.log("cool", data);
 });
 
 nest.cool = false;
-nests.silent(nest).cool = true;
+silent(nest).cool = true;
 try {
-	nests.shallow(nest).deep.in.nest = true;
+	shallow(nest).deep.in.nest = true;
 } catch {
 	console.log("Dies, good.");
 }
-nests.deep(nests.shallow(nest)).deep.in.nest = true;
+deep(shallow(nest)).deep.in.nest = true;
 
 console.log(nest);
 

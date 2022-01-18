@@ -1,5 +1,5 @@
 import Events from "../Events";
-import { offSymbol, ListenerFunction } from "../utils/EventEmitter";
+import { offSymbol, ListenerFunction } from "../lib-utils/makeEmitter";
 import on from "./on";
 
 export default function once<Data>(

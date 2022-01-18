@@ -1,7 +1,7 @@
-import nests from "../";
+import * as nests from "..";
 import Events from "../Events";
-import { on } from "../listeners";
-import symbolJoin from "../utils/symbolJoin";
+import on from "./on";
+import symbolJoin from "../lib-utils/symbolJoin";
 import set from "./set";
 import target from "./target";
 

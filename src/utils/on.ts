@@ -1,9 +1,9 @@
 import Events from "../Events";
 import { eventEmittersSymbol, pathSymbol } from "../symbols";
-import { ListenerFunction } from "../utils/EventEmitter";
-import symbolJoin from "../utils/symbolJoin";
+import makeEmitter, { ListenerFunction } from "../lib-utils/makeEmitter";
+import symbolJoin from "../lib-utils/symbolJoin";
 
-export default function off<Data>(
+export default function on<Data>(
 	events: Events | Events[],
 	obj: Data | [Data, string | symbol],
 	func: ListenerFunction<Data>
@@ -21,8 +21,11 @@ export default function off<Data>(
 		symbolJoin(pathArray, ".") +
 		(key != null ? `${pathArray.length === 0 ? "" : "."}${key as string}` : "");
 
-	const emitter = obj[eventEmittersSymbol]?.[pathString];
-	if (emitter == null) return;
+	let emitter = obj[eventEmittersSymbol]?.[pathString];
+	if (emitter == null) {
+		emitter = obj[eventEmittersSymbol][pathString] = makeEmitter();
+	}
 
-	emitter.off(events, func);
+	emitter.on(events, func);
+	return () => emitter.off(events, func);
 }
