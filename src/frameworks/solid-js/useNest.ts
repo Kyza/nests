@@ -78,7 +78,7 @@ export default function useNest<Data>(
 	let unsubRest;
 	if (!transient) {
 		unsubRest = on(
-			[Events.BULK, Events.SET, Events.DELETE, Events.APPLY],
+			Object.values(Events).filter((event) => event !== Events.UPDATE),
 			nest,
 			listener
 		);
