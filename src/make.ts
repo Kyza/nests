@@ -143,12 +143,11 @@ export default function make<Data extends object>(
 				root = set(root, newPath, value);
 
 				if (!options.silent) {
-					const emitData = {
+					emitUp<Events.SET>(emitters, {
 						event: Events.SET,
 						path: newPath,
 						value,
-					};
-					emitUp(emitters, emitData);
+					});
 				}
 
 				// This needs to return true or it errors. /shrug
@@ -156,33 +155,26 @@ export default function make<Data extends object>(
 			},
 			deleteProperty(target, key) {
 				if (delete target[key] && !options.silent) {
-					const newPath = [...path, key];
-					const emitData = {
-						event: Events.SET,
-						path: newPath,
-					};
-					emitUp(emitters, emitData);
+					emitUp(emitters, {
+						event: Events.DELETE,
+						path: [...path, key],
+					});
 					return true;
 				}
 				return false;
 			},
 			apply(target, thisArg, args) {
+				const copiedArgs = [...args];
 				const value = (target as Function).apply(thisArg, args);
 
 				if (!options.silent) {
-					const emitData = {
-						event: Events.SET,
+					emitUp<Events.APPLY>(emitters, {
+						event: Events.APPLY,
 						path: [...path],
+						thisArg,
+						args: copiedArgs,
 						value,
-					};
-					// Emit to the base nest listeners.
-					emitters[""]?.emit<Events.SET>(Events.SET, emitData);
-					// Emit up the chain.
-					let emitterPaths = "";
-					for (let i = 0; i < path.length; i++) {
-						emitterPaths += (i === 0 ? "" : ".") + path[i].toString();
-						emitters[emitterPaths]?.emit<Events.SET>(Events.SET, emitData);
-					}
+					});
 				}
 
 				return value;
