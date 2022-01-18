@@ -22,8 +22,6 @@ export default function bulk<Data extends object>(
 	const transientNest = make(target(nest), options(nest));
 
 	// Set up the event emitters to catch the events to emit later.
-	console.log(Events, Object.values(Events));
-
 	on(Object.values(Events), transientNest, (data) => {
 		stackedEvents.value.push(data);
 	});

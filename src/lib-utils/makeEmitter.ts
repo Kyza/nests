@@ -118,14 +118,6 @@ export default function makeEmitter(): EventEmitter {
 			event: keyof typeof Events,
 			data: ListenerReceive<EventType>
 		) {
-			console.log(
-				this.listeners,
-				event,
-				this.listeners[event],
-				event in this.listeners,
-				data
-			);
-
 			for (const listener of this.listeners[event].values()) {
 				try {
 					listener(data);
