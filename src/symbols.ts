@@ -1,6 +1,9 @@
 export const eventEmittersSymbol = Symbol("eventListener");
 export const pathSymbol = Symbol("path");
 export const targetSymbol = Symbol("target");
+export const clonerSymbol = Symbol("cloner");
+
+export const optionsSymbol = Symbol("options");
 
 export const shallowSymbol = Symbol("shallow");
 export const deepSymbol = Symbol("deep");

@@ -4,6 +4,7 @@ import on from "./on";
 import symbolJoin from "../lib-utils/symbolJoin";
 import set from "./set";
 import target from "./target";
+import copy from "./copy";
 
 export default function track(
 	nest: object,
@@ -15,20 +16,20 @@ export default function track(
 		traceLimit?: number;
 		actionCreators?: object;
 	} = {}
-) {
+): Function {
 	if (window?.hasOwnProperty("__REDUX_DEVTOOLS_EXTENSION__")) {
+		const original = copy(nest);
 		// @ts-ignore
 		const devTools = window.__REDUX_DEVTOOLS_EXTENSION__.connect(options);
 		devTools.init(target(nest));
 
 		devTools.subscribe((message) => {
-			console.log(message);
 			switch (message.type) {
 				case "DISPATCH":
 					switch (message.payload?.type) {
 						case "RESET":
-							set(nest, target(nest));
-							devTools.init(target(nest));
+							set(nest, original);
+							devTools.init(original);
 							break;
 						case "COMMIT":
 							devTools.init(target(nest));
@@ -55,11 +56,10 @@ export default function track(
 			}
 		});
 
-		on(
-			[Events.UPDATE, Events.APPLY, Events.BULK, Events.DELETE, Events.SET],
-			nest,
-			(data) => devTools.send(symbolJoin(data.path, "."), target(nest))
-		);
+		return on(Object.values(Events), nest, (data) => {
+			const name = symbolJoin(data.path, ".");
+			devTools.send(name.length === 0 ? "this" : `this.${name}`, target(nest));
+		});
 	} else {
 		console.warn("[Nests] Redux DevTools not found.");
 	}

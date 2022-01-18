@@ -1,7 +1,5 @@
-import target from "./target";
-
 export default function set<Data extends object>(
-	nest: object,
+	nest: Data,
 	value: Data
 ): Data {
 	// TODO: Make this a bulk that uses it on everything so it gets emitted.
@@ -11,11 +9,11 @@ export default function set<Data extends object>(
 	for (let i = 0; i < nestKeys.length; i++) {
 		const key = nestKeys[i];
 		if (key in value) {
-			target(nest)[key] = value[key];
+			nest[key] = value[key];
 		} else {
-			delete target(nest)[key];
+			delete nest[key];
 		}
 	}
 
-	return nest as Data;
+	return nest;
 }

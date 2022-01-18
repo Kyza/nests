@@ -12,7 +12,10 @@ import {
 	silentSymbol,
 	deepSymbol,
 	loudSymbol,
+	clonerSymbol,
+	optionsSymbol,
 } from "./symbols.js";
+import emitUp from "./lib-utils/emitUp.js";
 
 export type NestOptions = {
 	nestArrays?: boolean;
@@ -79,6 +82,10 @@ export default function make<Data extends object>(
 						return emitters;
 					case pathSymbol:
 						return [...path];
+					case optionsSymbol:
+						return nestOptions;
+					case clonerSymbol:
+						return cloneFunction;
 					case shallowSymbol:
 						return makeDeepNest(
 							target,
@@ -141,14 +148,7 @@ export default function make<Data extends object>(
 						path: newPath,
 						value,
 					};
-					// Emit to the base nest listeners.
-					emitters[""]?.emit<Events.SET>(Events.SET, emitData);
-					// Emit up the chain.
-					let emitterPaths = "";
-					for (let i = 0; i < newPath.length; i++) {
-						emitterPaths += (i === 0 ? "" : ".") + newPath[i].toString();
-						emitters[emitterPaths]?.emit<Events.SET>(Events.SET, emitData);
-					}
+					emitUp(emitters, emitData);
 				}
 
 				// This needs to return true or it errors. /shrug
@@ -161,17 +161,7 @@ export default function make<Data extends object>(
 						event: Events.SET,
 						path: newPath,
 					};
-					// Emit to the base nest listeners.
-					emitters[""]?.emit<Events.DELETE>(Events.DELETE, emitData);
-					// Emit up the chain.
-					let emitterPaths = "";
-					for (let i = 0; i < newPath.length; i++) {
-						emitterPaths += (i === 0 ? "" : ".") + newPath[i].toString();
-						emitters[emitterPaths]?.emit<Events.DELETE>(
-							Events.DELETE,
-							emitData
-						);
-					}
+					emitUp(emitters, emitData);
 					return true;
 				}
 				return false;

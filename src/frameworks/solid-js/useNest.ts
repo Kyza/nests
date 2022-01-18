@@ -44,10 +44,11 @@ export default function useNest<Data>(
 					// Iterate through the list of changes and update each unique signal.
 					// If something has changed it only needs to be updated once.
 					const events = new Set<string>();
-					for (const bulkBit of data as BulkListenerData) {
-						const hash = bulkBit.path.join(",");
+					for (const bulkBit of (data as BulkListenerData).value) {
+						const hash = symbolJoin(bulkBit.path, ",");
 						if (!events.has(hash)) {
-							signals[hash]?.set(bulkBit.value);
+							// @ts-ignore I expect this could be undefined.
+							signals[hash]?.set(bulkBit?.value);
 							events.add(hash);
 						}
 					}
