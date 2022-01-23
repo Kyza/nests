@@ -6,6 +6,8 @@ import { eventEmittersSymbol, pathSymbol } from "../symbols";
 import options from "./options";
 import target from "./target";
 import on from "./on";
+import deepDiff from "../lib-utils/deepDiff";
+import pathStringMaker from "../lib-utils/pathStringMaker";
 
 export default function bulk<Data extends object>(
 	nest: Data,
@@ -31,10 +33,22 @@ export default function bulk<Data extends object>(
 
 	if (cancel) return;
 
+	// Remove the extra events that can be diffed out.
+	const diff = deepDiff(nest, transientNest);
+	const validEvents = new Set([
+		...diff.added,
+		...diff.changed,
+		...diff.deleted,
+	]);
+	stackedEvents.value = stackedEvents.value.filter((data) =>
+		validEvents.has(pathStringMaker(data.path))
+	);
+
 	// Set the state all in one go.
 	Object.assign(target(nest), transientNest);
 
-	if (!transient) {
+	// Only run if it's not transient and if there are events to emit.
+	if (!transient && stackedEvents.value.length > 0) {
 		// Run bulk event.
 		emitUp<Events.BULK>(nest[eventEmittersSymbol], stackedEvents);
 	}

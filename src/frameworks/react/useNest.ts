@@ -8,7 +8,7 @@ import {
 import Events from "../../Events";
 import { on } from "../../utils";
 
-export default function useNest<Data>(
+export default function useNest<Data extends object>(
 	nest: Data,
 	transient: boolean = false,
 	filter: (

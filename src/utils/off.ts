@@ -1,27 +1,17 @@
 import Events from "../Events";
-import { eventEmittersSymbol, pathSymbol } from "../symbols";
+import { eventEmittersSymbol } from "../symbols";
 import { ListenerFunction } from "../lib-utils/makeEmitter";
-import symbolJoin from "../lib-utils/symbolJoin";
+import pathStringMaker from "../lib-utils/pathStringMaker";
 
-export default function off<Data>(
+export default function off<Data extends object>(
 	events: Events | Events[],
-	obj: Data | [Data, string | symbol],
+	nest: Data | [Data, string | symbol],
 	func: ListenerFunction<Data>
 ) {
-	let key: string | symbol | (string | symbol)[];
-	if (Array.isArray(obj)) {
-		[obj, ...key] = obj;
-		key = symbolJoin(key as (string | symbol)[], ".");
-	}
+	const pathString = pathStringMaker(nest);
+	if (Array.isArray(nest)) nest = nest[0];
 
-	const pathArray = obj[pathSymbol];
-
-	// I can't use .join because it fails on symbols because JavaScript.
-	const pathString =
-		symbolJoin(pathArray, ".") +
-		(key != null ? `${pathArray.length === 0 ? "" : "."}${key as string}` : "");
-
-	const emitter = obj[eventEmittersSymbol]?.[pathString];
+	const emitter = nest[eventEmittersSymbol]?.[pathString];
 	if (emitter == null) return;
 
 	emitter.off(events, func);

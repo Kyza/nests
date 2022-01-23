@@ -1,5 +1,5 @@
 import { make, Events } from "./src";
-import { on, once, off, silent, shallow, deep } from "./src/utils";
+import { on, once, off, silent, shallow, deep, isNest } from "./src/utils";
 
 // A debounce function.
 function debounce(func: Function, wait: number, immediate: boolean = false) {
@@ -25,6 +25,8 @@ const nest = make<any>({
 	deep: { nest: true },
 	array: largeArray,
 });
+
+console.log(nest, isNest(nest), isNest({}));
 
 once(Events.SET, nest, (data) => {
 	console.log("all", data);

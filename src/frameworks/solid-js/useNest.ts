@@ -16,7 +16,7 @@ import {
 } from "../../symbols";
 import symbolJoin from "../../lib-utils/symbolJoin";
 
-export default function useNest<Data>(
+export default function useNest<Data extends object>(
 	nest: Data,
 	transient: boolean = false,
 	filter: (

@@ -16,14 +16,22 @@ import {
 	optionsSymbol,
 } from "./symbols.js";
 import emitUp from "./lib-utils/emitUp.js";
+import pathStringMaker from "./lib-utils/pathStringMaker.js";
+
+export type DifferFunction = (
+	path: (string | symbol)[],
+	oldValue: any,
+	newValue: any
+) => boolean;
 
 export type NestOptions = {
 	nestArrays?: boolean;
 	nestClasses?: boolean;
 	initialClone?: boolean;
 	cloner?:
-		| { deep?: boolean; function: (value: any) => any }
+		| { deep?: boolean; function?: (value: any) => any }
 		| ((value: any) => any);
+	differ?: false | DifferFunction;
 };
 
 export default function make<Data extends object>(
@@ -36,6 +44,11 @@ export default function make<Data extends object>(
 	// Set default options.
 	options.nestArrays ??= true;
 	options.nestClasses ??= true;
+	options.initialClone ??= true;
+	options.differ === false
+		? (options.differ = () => true)
+		: (options.differ ??= (_, oldValue, newValue) => oldValue !== newValue);
+
 	const nestOptions = options;
 
 	if (typeof options.cloner === "function") {
@@ -44,12 +57,9 @@ export default function make<Data extends object>(
 			function: options.cloner,
 		};
 	} else {
-		options.cloner ??= { deep: false, function: () => null };
+		options.cloner ??= { deep: false };
 		options.cloner.deep ??= false;
-		options.cloner.function ??= () => null;
 	}
-
-	options.initialClone ??= true;
 
 	// Only pass what's needed.
 	const cloneFunction = (value: any) =>
@@ -63,6 +73,9 @@ export default function make<Data extends object>(
 	const emitters: {
 		[key: string]: EventEmitter;
 	} = {};
+	const differs: {
+		[key: string]: DifferFunction;
+	} = {};
 
 	function makeDeepNest<Data extends object>(
 		target: any,
@@ -73,7 +86,7 @@ export default function make<Data extends object>(
 		options.deep ??= true;
 		options.silent ??= false;
 
-		const nestTraps: ProxyHandler<Data> = {
+		return new Proxy(target, {
 			get(target, key: string | symbol) {
 				const newPath: (string | symbol)[] = [...path, key];
 
@@ -138,18 +151,31 @@ export default function make<Data extends object>(
 
 				return value;
 			},
-			set(_target, key, value) {
+			set(target, key, value) {
 				const newPath = [...path, key];
-				root = set(root, newPath, value);
 
-				if (!options.silent) {
-					emitUp<Events.SET>(emitters, {
-						event: Events.SET,
-						path: newPath,
-						value,
-					});
+				// If there's a specific differ for this path, use it.
+				const overrideDiffer = differs[pathStringMaker(newPath)];
+				const differArgs: Parameters<DifferFunction> = [
+					[...newPath],
+					target[key],
+					value,
+				];
+
+				if (
+					overrideDiffer != null
+						? overrideDiffer(...differArgs)
+						: nestOptions.differ === false || nestOptions.differ(...differArgs)
+				) {
+					root = set(root, newPath, value);
+					if (!options.silent) {
+						emitUp<Events.SET>(emitters, {
+							event: Events.SET,
+							path: newPath,
+							value,
+						});
+					}
 				}
-
 				// This needs to return true or it errors. /shrug
 				return true;
 			},
@@ -180,6 +206,7 @@ export default function make<Data extends object>(
 				return value;
 			},
 			has(target, key) {
+				if (key === targetSymbol) return true;
 				if (
 					typeof target[key] === "object" &&
 					Object.keys(target[key]).length === 0
@@ -188,9 +215,7 @@ export default function make<Data extends object>(
 				}
 				return key in target;
 			},
-		};
-
-		return new Proxy(target, nestTraps);
+		});
 	}
 
 	return makeDeepNest(internalData, internalData, []);

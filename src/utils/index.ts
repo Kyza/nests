@@ -14,3 +14,5 @@ export { default as off } from "./off";
 export { default as track } from "./track";
 export { default as target } from "./target";
 export { default as options } from "./options";
+export { default as path } from "./path";
+export { default as isNest } from "./isNest";

@@ -1,4 +1,4 @@
-export const eventEmittersSymbol = Symbol("eventListener");
+export const eventEmittersSymbol = Symbol("eventListeners");
 export const pathSymbol = Symbol("path");
 export const targetSymbol = Symbol("target");
 export const clonerSymbol = Symbol("cloner");

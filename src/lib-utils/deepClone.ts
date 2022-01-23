@@ -3,6 +3,7 @@ export default function deepClone<Type extends object>(
 	obj: Type,
 	override: (obj: Type) => Type | undefined = () => void 0
 ): Type {
+	// This can be for adding support for things such as Maps, Sets, Dates, and more.
 	if (override) {
 		const clone = override(obj);
 		if (clone != null) {
@@ -13,48 +14,22 @@ export default function deepClone<Type extends object>(
 	// Nullish should be a leaf.
 	if (obj == null) return obj;
 
-	// Apparently this is really slow. Maybe investigate it later.
-	const constructor = obj.constructor;
-
-	// Handle basic objects.
-	if (constructor === Object) {
-		const cloneObj = {} as Type;
-		for (const key in obj) {
-			(cloneObj as any)[key] = deepClone<object>((obj as any)[key], override);
+	// Handle basic objects and arrays.
+	const constructor = obj?.constructor;
+	const isArray = Array.isArray(obj);
+	const isFunction = typeof obj === "function";
+	if (constructor === Object || isFunction || isArray) {
+		const clone = isFunction ? obj : isArray ? new Array(obj.length) : {};
+		const keys = Reflect.ownKeys(obj);
+		for (let i = 0; i < keys.length; i++) {
+			try {
+				clone[keys[i]] = deepClone<object>(obj[keys[i]], override);
+			} catch {
+				// Assigned to a readonly property.
+				// This should fail silently.
+			}
 		}
-		return cloneObj as Type;
+		return clone as Type;
 	}
-
-	// Handle classes.
-	switch (constructor) {
-		case Date:
-			return new Date((obj as Date).getTime()) as Type;
-		case RegExp:
-			return new RegExp((obj as RegExp).source, (obj as RegExp).flags) as Type;
-		case Set:
-			const cloneSet = new Set();
-			for (const item of obj as Set<any>) {
-				cloneSet.add(deepClone(item, override));
-			}
-			return cloneSet as Type;
-		case Map:
-			const cloneMap = new Map();
-			for (const [key, value] of obj as Map<any, any>) {
-				cloneMap.set(deepClone(key, override), deepClone(value, override));
-			}
-			return cloneMap as Type;
-		case Array:
-			let cloneArray = [];
-			for (let i = 0; i < (obj as []).length; i++) {
-				cloneArray.push(deepClone(obj[i], override));
-			}
-			return cloneArray as Type;
-		default:
-			// There's no telling how to clone a class correctly.
-			// It's NEVER a good idea to randomly call the constructor.
-			// It could contain private properties.
-			// It could even be a primitive type.
-			// Returning as a leaf is the safest option.
-			return obj;
-	}
+	return obj;
 }
