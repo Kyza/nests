@@ -1,0 +1,13 @@
+a {
+	color: inherit;
+}
+* {
+	user-select: none;
+	-webkit-user-drag: none;
+}
+
+body {
+	height: 100%;
+	background-color: #202124;
+	color: #cfd0d0;
+}
