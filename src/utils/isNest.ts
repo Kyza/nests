@@ -1,5 +1,5 @@
 import { targetSymbol } from "../symbols";
 
-export default function isNest(obj: object): boolean {
+export default function isNest(obj: any): boolean {
 	return typeof obj === "object" && targetSymbol in obj;
 }

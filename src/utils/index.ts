@@ -5,7 +5,7 @@ export { default as silent } from "./silent";
 export { default as loud } from "./loud";
 
 export { default as bulk } from "./bulk";
-export { default as set } from "./set";
+export { default as copy } from "./copy";
 
 export { default as on } from "./on";
 export { default as once } from "./once";

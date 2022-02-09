@@ -1,4 +1,3 @@
-// TODO: This type handling sucks. Oh well!
 export default function deepClone<Type extends object>(
 	obj: Type,
 	override: (obj: Type) => Type | undefined = () => void 0
@@ -23,7 +22,16 @@ export default function deepClone<Type extends object>(
 		const keys = Reflect.ownKeys(obj);
 		for (let i = 0; i < keys.length; i++) {
 			try {
-				clone[keys[i]] = deepClone<object>(obj[keys[i]], override);
+				const desc = Object.getOwnPropertyDescriptor(obj, keys[i]);
+				if (desc.hasOwnProperty("get") || desc.hasOwnProperty("set")) {
+					// Preserve getters and setters if they exist.
+					Object.defineProperty(clone, keys[i], desc);
+				} else {
+					Object.defineProperty(clone, keys[i], {
+						...desc,
+						value: deepClone(desc.value, override),
+					});
+				}
 			} catch {
 				// Assigned to a readonly property.
 				// This should fail silently.

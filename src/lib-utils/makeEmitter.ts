@@ -9,18 +9,8 @@ export type SetListenerData = {
 	value: object;
 } & ListenerData;
 export type DeleteListenerData = ListenerData;
-export type ApplyListenerData = {
-	thisArg: object;
-	args: any[];
-	value: object;
-} & ListenerData;
 export type BulkListenerData = {
-	value?: (
-		| SetListenerData
-		| DeleteListenerData
-		| ApplyListenerData
-		| BulkListenerData
-	)[];
+	value?: (SetListenerData | DeleteListenerData | BulkListenerData)[];
 } & ListenerData;
 
 // If the event type is Events.BULK, the listener will receive an EventStack.
@@ -31,8 +21,6 @@ export type ListenerReceive<EventType> = EventType extends Events.BULK
 	? SetListenerData
 	: EventType extends Events.DELETE
 	? DeleteListenerData
-	: EventType extends Events.APPLY
-	? ApplyListenerData
 	: ListenerData;
 export type ListenerFunction<EventType> = (
 	data: ListenerReceive<EventType>

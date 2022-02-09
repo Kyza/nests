@@ -4,7 +4,8 @@
 			"syntax": "typescript",
 			"tsx": false,
 			"decorators": false,
-			"dynamicImport": false
+			"dynamicImport": false,
+			"declaration": true
 		},
 		"target": "es2020",
 		"loose": false

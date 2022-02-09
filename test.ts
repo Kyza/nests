@@ -1,6 +1,24 @@
 import { make, Events } from "./src";
 import { on, once, off, silent, shallow, deep, isNest } from "./src/utils";
 
+const gt = make({
+	count: 0,
+	get doubleCount() {
+		return this.count * 2;
+	},
+	set doubleCount(value: number) {
+		this.count = value / 2;
+	},
+});
+
+console.log(gt.count, gt.doubleCount);
+
+gt.doubleCount = 4;
+
+console.log(gt.count, gt.doubleCount);
+
+process.exit();
+
 // A debounce function.
 function debounce(func: Function, wait: number, immediate: boolean = false) {
 	let timeout: NodeJS.Timeout | null;

@@ -1,22 +1,20 @@
 {
 	"name": "nests",
-	"version": "4.0.0-alpha.5",
+	"version": "4.0.0-alpha.11",
 	"description": "Fast and easy state storage with a lot of control.",
-	"main": "./cjs/index.js",
+	"main": "./index.js",
 	"module": "./esm/index.js",
-	"types": "./types/index.d.js",
+	"types": "./index.d.js",
 	"sideEffects": false,
 	"files": [
-		"esm",
-		"cjs",
-		"types"
+		"**"
 	],
 	"scripts": {
 		"build": "npx zx ./scripts/build.mjs && npx minified-size ./esm/**/*.js",
-		"dev": "npx swc ./src/ -d ./dev/ --watch",
-		"pub": "npm publish",
-		"pub-alpha": "npm publish --tag alpha",
-		"pub-beta": "npm publish --tag beta",
+		"dev": "tsc -p ./tsconfig.dev.json -w",
+		"pub": "cd dist && npm publish",
+		"pub-alpha": "cd dist && npm publish --tag alpha",
+		"pub-beta": "cd dist && npm publish --tag beta",
 		"test": "tsc --project tsconfig.test.json && node ./test/test.js"
 	},
 	"repository": {

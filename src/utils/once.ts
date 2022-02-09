@@ -1,11 +1,12 @@
 import Events from "../Events";
 import { offSymbol, ListenerFunction } from "../lib-utils/makeEmitter";
+import Nest from "../Nest";
 import on from "./on";
 
 export default function once<Data extends object>(
 	events: Events | Events[],
-	nest: Data | [Data, string | symbol],
-	func: ListenerFunction<Data>
+	nest: Nest<Data> | [Nest<Data>, string | symbol],
+	func: ListenerFunction<Nest<Data>>
 ) {
 	let off;
 	func[offSymbol] = () => {

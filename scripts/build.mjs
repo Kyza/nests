@@ -12,9 +12,7 @@ async function* walk(dir) {
 }
 
 // Clean last build.
-await fs.emptyDir("esm");
-await fs.emptyDir("cjs");
-await fs.emptyDir("types");
+await fs.emptyDir("dist");
 
 // Build all.
 await Promise.all([
@@ -22,6 +20,17 @@ await Promise.all([
 	$`npx tsc --project tsconfig.cjs.json`,
 	$`npx tsc --project tsconfig.types.json`,
 ]);
+
+await Promise.all([
+	fs.copy("package.json", "dist/package.json"),
+	fs.copy("README.md", "dist/README.md"),
+	fs.copy("LICENSE", "dist/LICENSE"),
+	fs.copy("dist/types", "dist"),
+	fs.copy("dist/types", "dist/esm"),
+]);
+fs.rm("dist/types", {
+	recursive: true,
+});
 
 // for await (const file of walk("./esm")) {
 // 	if (file.endsWith(".js")) {

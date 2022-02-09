@@ -1,6 +1,6 @@
 {
 	"compilerOptions": {
-		"outDir": "./esm",
+		"outDir": "./dist/esm",
 		"target": "ESNext",
 		"module": "ESNext",
 		"lib": ["ESNext", "DOM"],

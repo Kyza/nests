@@ -16,13 +16,8 @@ import {
 	optionsSymbol,
 } from "./symbols.js";
 import emitUp from "./lib-utils/emitUp.js";
-import pathStringMaker from "./lib-utils/pathStringMaker.js";
-
-export type DifferFunction = (
-	path: (string | symbol)[],
-	oldValue: any,
-	newValue: any
-) => boolean;
+import Nest from "./Nest.js";
+import isDifferent from "./lib-utils/isDifferent.js";
 
 export type NestOptions = {
 	nestArrays?: boolean;
@@ -31,13 +26,12 @@ export type NestOptions = {
 	cloner?:
 		| { deep?: boolean; function?: (value: any) => any }
 		| ((value: any) => any);
-	differ?: false | DifferFunction;
 };
 
 export default function make<Data extends object>(
 	data: Data = {} as Data,
 	options: NestOptions = {}
-): Data {
+): Nest<Data> {
 	// No shenanigans.
 	options = deepClone(options);
 
@@ -45,9 +39,6 @@ export default function make<Data extends object>(
 	options.nestArrays ??= true;
 	options.nestClasses ??= true;
 	options.initialClone ??= true;
-	options.differ === false
-		? (options.differ = () => true)
-		: (options.differ ??= (_, oldValue, newValue) => oldValue !== newValue);
 
 	const nestOptions = options;
 
@@ -72,9 +63,6 @@ export default function make<Data extends object>(
 
 	const emitters: {
 		[key: string]: EventEmitter;
-	} = {};
-	const differs: {
-		[key: string]: DifferFunction;
 	} = {};
 
 	function makeDeepNest<Data extends object>(
@@ -129,52 +117,40 @@ export default function make<Data extends object>(
 						);
 					case targetSymbol:
 						return target;
-				}
+					default:
+						// Not a predefined symbol.
+						let value = target[key];
+						if (value != null) {
+							if (!nestOptions.nestArrays && Array.isArray(value)) {
+								return value;
+							}
+							if (
+								typeof value === "object" &&
+								(nestOptions.nestClasses || value.constructor === Object)
+							) {
+								return makeDeepNest(value, root, newPath, options);
+							}
+							return value;
+						}
 
-				let value = target[key];
-				if (value != null) {
-					if (!nestOptions.nestArrays && Array.isArray(value)) {
+						if (options.deep) {
+							return makeDeepNest({}, root, newPath, options);
+						}
+
 						return value;
-					}
-					if (
-						typeof value === "object" &&
-						(nestOptions.nestClasses || value.constructor === Object)
-					) {
-						return makeDeepNest(value, root, newPath, options);
-					}
-					return value;
 				}
-
-				if (options.deep) {
-					return makeDeepNest({}, root, newPath, options);
-				}
-
-				return value;
 			},
 			set(target, key, value) {
 				const newPath = [...path, key];
+				const oldValue = target[key];
 
-				// If there's a specific differ for this path, use it.
-				const overrideDiffer = differs[pathStringMaker(newPath)];
-				const differArgs: Parameters<DifferFunction> = [
-					[...newPath],
-					target[key],
-					value,
-				];
-
-				if (
-					overrideDiffer != null
-						? overrideDiffer(...differArgs)
-						: nestOptions.differ === false || nestOptions.differ(...differArgs)
-				) {
-					root = set(root, newPath, value);
-					if (!options.silent) {
-						emitUp<Events.SET>(emitters, {
-							event: Events.SET,
-							path: newPath,
-							value,
-						});
-					}
+				root = set(root, newPath, value);
+				if (!options.silent && isDifferent(oldValue, value)) {
+					emitUp<Events.SET>(emitters, {
+						event: Events.SET,
+						path: newPath,
+						value,
+					});
 				}
 				// This needs to return true or it errors. /shrug
 				return true;
@@ -188,22 +164,6 @@ export default function make<Data extends object>(
 					return true;
 				}
 				return false;
-			},
-			apply(target, thisArg, args) {
-				const copiedArgs = [...args];
-				const value = (target as Function).apply(thisArg, args);
-
-				if (!options.silent) {
-					emitUp<Events.APPLY>(emitters, {
-						event: Events.APPLY,
-						path: [...path],
-						thisArg,
-						args: copiedArgs,
-						value,
-					});
-				}
-
-				return value;
 			},
 			has(target, key) {
 				if (key === targetSymbol) return true;

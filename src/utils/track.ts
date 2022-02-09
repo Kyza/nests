@@ -2,12 +2,12 @@ import * as nests from "..";
 import Events from "../Events";
 import on from "./on";
 import symbolJoin from "../lib-utils/symbolJoin";
-import set from "./set";
 import target from "./target";
 import copy from "./copy";
+import Nest from "../Nest";
 
-export default function track(
-	nest: object,
+export default function track<Data extends object>(
+	nest: Nest<Data>,
 	options: {
 		name?: string;
 		latency?: number;
@@ -28,7 +28,7 @@ export default function track(
 				case "DISPATCH":
 					switch (message.payload?.type) {
 						case "RESET":
-							set(nest, original);
+							Object.assign(nest, original);
 							devTools.init(original);
 							break;
 						case "COMMIT":
@@ -36,7 +36,7 @@ export default function track(
 							break;
 						case "ROLLBACK":
 							const parsedState = JSON.parse(message.state ?? "{}");
-							set(nest, parsedState);
+							Object.assign(nest, parsedState);
 							devTools.init(parsedState);
 							break;
 						default:
