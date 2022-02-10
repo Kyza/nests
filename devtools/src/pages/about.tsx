@@ -3,7 +3,7 @@ import { Link, useData } from "solid-app-router";
 
 import pkg from "../../package.json";
 
-export default function About() {
+export default function AboutPanel() {
 	return (
 		<section class="p-4 pt-2">
 			<h1 class="text-2xl font-bold">About</h1>

@@ -9,7 +9,7 @@ const App: Component = () => {
 
 	return (
 		<>
-			<nav class="bg-[#292a2d] text-[#9AA0A6]">
+			<nav class="bg-[#292a2d] text-[#9AA0A6] border-b-1 border-[#494c50]">
 				<ul class="flex items-center px-2 h-8">
 					<li class="">
 						<Link
@@ -18,17 +18,17 @@ const App: Component = () => {
 								location.pathname === "/" ? " text-[#EAEAEA]" : ""
 							}`}
 						>
-							Stores
+							Select
 						</Link>
 					</li>
 					<li class="">
 						<Link
-							href="/state"
+							href="/inspect"
 							class={`p-2 no-underline duration-300 hover:(text-[#EAEAEA])${
-								location.pathname === "/state" ? " text-[#EAEAEA]" : ""
+								location.pathname === "/inspect" ? " text-[#EAEAEA]" : ""
 							}`}
 						>
-							State
+							Inspect
 						</Link>
 					</li>
 					<li class="">

@@ -25,26 +25,16 @@ const [stores, setStores] = createStore<StoreCollection>({
 	Todos: {
 		history: [
 			{
-				count: 0,
+				title: "Learn Solid",
+				completed: true,
 			},
 			{
-				count: 1,
+				title: "Learn Nests",
+				completed: true,
 			},
 			{
-				count: 2,
-			},
-		],
-	},
-	水: {
-		history: [
-			{
-				count: 0,
-			},
-			{
-				count: 1,
-			},
-			{
-				count: 2,
+				title: "Learn Nests Devtools",
+				completed: false,
 			},
 		],
 	},

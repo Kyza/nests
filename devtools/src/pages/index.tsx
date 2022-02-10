@@ -1,17 +1,17 @@
 import { useNavigate } from "solid-app-router";
-import { createSignal, For } from "solid-js";
+import { For } from "solid-js";
 
 import AllStores from "../stores/AllStores";
 import SelectedStore from "../stores/SelectedStore";
 
-export default function Dashboard() {
-	const { stores, setStores } = AllStores;
+export default function SelectPanel() {
+	const { stores } = AllStores;
 	const [selectedStore, setSelectedStore] = SelectedStore;
 	const navigate = useNavigate();
 
 	return (
 		<section class="p-4 pt-2">
-			<h1 class="text-2xl font-bold">Inspect Store</h1>
+			<h1 class="text-2xl font-bold">Select Store</h1>
 
 			<div class="flex items-center space-x-2 pt-2">
 				<For each={Object.entries(stores)}>
