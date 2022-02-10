@@ -1,23 +1,26 @@
 import { lazy } from "solid-js";
 import type { RouteDefinition } from "solid-app-router";
 
-import Dashboard from "./pages/index";
+import SelectPanel from "./pages/index";
+import InspectPanel from "./pages/inspect";
+import AboutPanel from "./pages/about";
+import NotFound from "./errors/404";
 
 export const routes: RouteDefinition[] = [
 	{
 		path: "/",
-		component: lazy(() => import("./pages/index")),
+		component: SelectPanel,
 	},
 	{
 		path: "/inspect",
-		component: lazy(() => import("./pages/inspect")),
+		component: InspectPanel,
 	},
 	{
 		path: "/about",
-		component: lazy(() => import("./pages/about")),
+		component: AboutPanel,
 	},
 	{
 		path: "**",
-		component: lazy(() => import("./errors/404")),
+		component: NotFound,
 	},
 ];

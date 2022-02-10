@@ -1,6 +1,6 @@
 {
 	"name": "Nests DevTools",
-	"description": "",
+	"description": "A state inspector for state management libraries.",
 	"version": "1.0.0",
 	"manifest_version": 3,
 	"devtools_page": "http://localhost:3001/",
