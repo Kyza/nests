@@ -8,7 +8,24 @@ export default function About() {
 		<section class="p-4 pt-2">
 			<h1 class="text-2xl font-bold">About</h1>
 
-			<p>Nests DevTools.</p>
+			<p>
+				<Link
+					class="underline underline-[#cfd0d0]"
+					href="https://github.com/Kyza/nests/tree/devtools"
+					target="_blank"
+				>
+					Nests DevTools
+				</Link>{" "}
+				is a state inspector for the{" "}
+				<Link
+					class="underline underline-[#cfd0d0]"
+					href="https://github.com/Kyza/nests/"
+					target="_blank"
+				>
+					Nests
+				</Link>{" "}
+				state storage library as well as anything else you want to connect.
+			</p>
 
 			<h1 class="text-2xl font-bold">Dependencies</h1>
 
@@ -16,12 +33,21 @@ export default function About() {
 				{([name, version]) => (
 					<p>
 						<Link
+							class="underline underline-[#cfd0d0]"
 							href={`https://www.npmjs.com/package/${name}`}
 							target="_blank"
 						>
 							{name}
 						</Link>{" "}
-						v{version.slice(1)}
+						<Link
+							class="underline underline-[#cfd0d0]"
+							href={`https://www.npmjs.com/package/${name}/v/${version.slice(
+								1
+							)}`}
+							target="_blank"
+						>
+							v{version.slice(1)}
+						</Link>
 					</p>
 				)}
 			</For>

@@ -19,18 +19,15 @@ export default function Dashboard() {
 						<input
 							type="button"
 							class={`duration-300 bg-[#cfd0d011] hover:(bg-[#cfd0d027]) rounded-xl p-2 cursor-pointer ${
-								selectedStore() === name
-									? "!cursor-not-allowed !bg-[#cfd0d044]"
-									: ""
+								selectedStore() === name ? "!bg-[#cfd0d044]" : ""
 							}`}
-							disabled={selectedStore() === name}
 							onClick={() => {
 								if (selectedStore() === name) {
 									setSelectedStore(null);
 								} else {
 									setSelectedStore(name);
+									navigate("/state");
 								}
-								navigate("/state");
 							}}
 							value={name}
 						/>
