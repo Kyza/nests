@@ -13,23 +13,17 @@ export default function InspectPanel() {
 
 	return (
 		<section class="p-4 pt-2">
+			<h1 class="text-2xl font-bold">Inspect {selectedStore() ?? "Store"}</h1>
 			{selectedStoreData() == null ? (
-				<>
-					<h1 class="text-2xl font-bold">Inspect Store</h1>
-					<p>
-						<Link href="/">Select a store</Link> to inspect it.
-					</p>
-				</>
+				<p>
+					<Link href="/">Select a store</Link> to inspect it.
+				</p>
 			) : (
-				<>
-					<h1 class="text-2xl font-bold">Inspect {selectedStore()}</h1>
-
-					<div class="flex flex-col items-start">
-						<For each={selectedStoreData().history}>
-							{(data) => <div>{JSON.stringify(data, null, "\t")}</div>}
-						</For>
-					</div>
-				</>
+				<div class="flex flex-col items-start">
+					<For each={selectedStoreData().history}>
+						{(data) => <div>{JSON.stringify(data, null, "\t")}</div>}
+					</For>
+				</div>
 			)}
 		</section>
 	);
