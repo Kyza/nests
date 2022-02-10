@@ -26,7 +26,7 @@ export default function SelectPanel() {
 									setSelectedStore(null);
 								} else {
 									setSelectedStore(name);
-									navigate("/state");
+									navigate("/inspect");
 								}
 							}}
 							value={name}
