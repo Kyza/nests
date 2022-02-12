@@ -17,7 +17,7 @@ export default function getDifferences(
 		(newNest.constructor === Object && oldNest.constructor === Object) ||
 		(Array.isArray(newNest) && Array.isArray(oldNest))
 	) {
-		const keys = new Set<string | number | symbol>([
+		const keys = new Set<PropertyKey>([
 			...Reflect.ownKeys(oldNest),
 			...Reflect.ownKeys(newNest),
 		]);

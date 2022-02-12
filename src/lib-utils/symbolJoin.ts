@@ -1,6 +1,6 @@
 export default function symbolJoin(
-	array: (string | number | symbol)[],
-	joiner: string | number | symbol
+	array: PropertyKey[],
+	joiner: PropertyKey
 ): string {
 	if (array.length === 1) return array[0].toString();
 	let result = "";

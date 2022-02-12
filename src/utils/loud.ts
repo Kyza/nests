@@ -1,11 +1,8 @@
 import Nest from "../Nest";
-import { loudSymbol, silentSymbol } from "../symbols";
-import isNest from "./isNest";
+import { loudSymbol } from "../symbols";
 
 export default function loud<Data extends object>(
-	obj: Nest<Data> | Data
-): Nest<Data> | Data {
-	return isNest(obj)
-		? (obj[loudSymbol] as Nest<Data>)
-		: ((obj[silentSymbol] = false), obj as Data);
+	nest: Nest<Data>
+): Nest<Data> {
+	return nest[loudSymbol];
 }

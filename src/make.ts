@@ -20,16 +20,28 @@ import Nest from "./Nest.js";
 import isDifferent from "./lib-utils/isDifferent.js";
 import walkTree from "./lib-utils/walkTree.js";
 import pathStringMaker from "./lib-utils/pathStringMaker.js";
-import { deep, silent } from "./utils/index.js";
+
+export type NestBehaviors =
+	| {
+			[targetSymbol]: true;
+	  }
+	| ({
+			[key: PropertyKey]: NestBehaviors;
+	  } & {
+			[deepSymbol]?: boolean;
+			[loudSymbol]?: boolean;
+			[targetSymbol]?: false;
+	  });
 
 export type NestOptions = {
+	behaviors?: NestBehaviors;
 	cloner?:
 		| { deep?: boolean; function?: (value: any) => any }
 		| ((value: any) => any);
 };
 export type DeepNestOptions = {
 	deep?: boolean;
-	silent?: boolean;
+	loud?: boolean;
 	target?: boolean;
 };
 
@@ -39,14 +51,18 @@ export default function make<Data extends object>(
 	data: Data = {} as Data,
 	options: NestOptions = {}
 ): Nest<Data> {
-	if (!(deepSymbol in data)) {
-		data = deep(data);
-	}
-	if (!(silentSymbol in data)) {
-		data = silent(data);
-	}
-
 	const nestOptions = options;
+
+	// @ts-ignore
+	options.behaviors ??= {
+		[deepSymbol]: true,
+		[loudSymbol]: true,
+		[targetSymbol]: false,
+	};
+	options.behaviors[deepSymbol] ??= true;
+	options.behaviors[loudSymbol] ??= true;
+	options.behaviors[targetSymbol] ??= false;
+
 	if (typeof options.cloner === "function") {
 		options.cloner = {
 			deep: false,
@@ -56,7 +72,6 @@ export default function make<Data extends object>(
 		options.cloner ??= { deep: false };
 		options.cloner.deep ??= false;
 	}
-
 	// Only pass what's needed.
 	const cloneFunction = (value: any) =>
 		// There's gotta be a better way to set a variable to a type. My eyes are bleeding.
@@ -74,10 +89,10 @@ export default function make<Data extends object>(
 	// Set up the default nesting options for each path.
 	const symbolSettings = [
 		["target", targetSymbol],
-		["silent", silentSymbol],
+		["loud", loudSymbol],
 		["deep", deepSymbol],
 	];
-	walkTree(data, (node, path) => {
+	walkTree(options.behaviors, (node, path) => {
 		if (typeof node === "object") {
 			const pathString = pathStringMaker(path);
 			// If one of the symbols is set, set it in the pathData.
@@ -93,49 +108,39 @@ export default function make<Data extends object>(
 		}
 	});
 
-	let internalData: Data;
-	function wrapRoot(value: Data) {
-		return Object.assign((newValue: Data) => {
-			// Make sure symbols don't get removed because Object.assign doesn't do this.
-			const wrappedNew = wrapRoot(newValue);
-			const allKeys = [
-				...new Set([
-					...Reflect.ownKeys(internalData),
-					...Reflect.ownKeys(wrappedNew),
-				]),
-			];
-			for (let i = 0; i < allKeys.length; i++) {
-				// Some of the keys are read only.
-				try {
-					// Prefer the new value.
-					internalData[allKeys[i]] =
-						wrappedNew[allKeys[i]] ?? internalData[allKeys[i]];
-				} catch {}
-			}
-		}, value);
-	}
-	internalData = wrapRoot(data);
+	let internalData = Object.assign((newValue: Data) => {
+		// Make sure symbols
+		const allKeys = [
+			...new Set([
+				...Reflect.ownKeys(internalData),
+				...Reflect.ownKeys(newValue),
+			]),
+		];
+		for (let i = 0; i < allKeys.length; i++) {
+			// Some of the keys are read only.
+			try {
+				// Prefer the new value.
+				internalData[allKeys[i]] =
+					newValue[allKeys[i]] ?? internalData[allKeys[i]];
+			} catch {}
+		}
+	}, data);
 
-	function getDeepNestOptions(value: any, previous: DeepNestOptions) {
+	function getDeepNestOptions(
+		value: any,
+		previous: DeepNestOptions,
+		pathString: string
+	) {
 		if (typeof value !== "object")
 			return Object.assign(allDefaultDeepNestOptions[""], previous);
 
-		// Loop up the path and get the highest default deepNestOptions.
-		const defaultDeepNestOptions: DeepNestOptions = {};
-
-		if (deepSymbol in value) {
-			defaultDeepNestOptions.deep = value[deepSymbol];
-		}
-		if (silentSymbol in value) {
-			defaultDeepNestOptions.silent = value[silentSymbol];
-		}
-		if (targetSymbol in value) {
-			defaultDeepNestOptions.target = value[targetSymbol];
-		}
-
+		// Default to the root options.
 		const prioritizedOptions = allDefaultDeepNestOptions[""];
+		// Override those with the options from the parent.
+		// This will be the parent's options because they are passed down through makeDeepNest.
 		Object.assign(prioritizedOptions, previous);
-		Object.assign(prioritizedOptions, defaultDeepNestOptions);
+		// Override those with the options from the current path.
+		Object.assign(prioritizedOptions, allDefaultDeepNestOptions[pathString]);
 
 		return prioritizedOptions;
 	}
@@ -143,7 +148,7 @@ export default function make<Data extends object>(
 	function makeDeepNest<Data extends object>(
 		target: any,
 		root: any,
-		path: (string | number | symbol)[],
+		path: PropertyKey[],
 		options: DeepNestOptions = {}
 	): Data {
 		if (options.target) return target;
@@ -152,8 +157,8 @@ export default function make<Data extends object>(
 		}
 
 		const deepNest = new Proxy(target, {
-			get(target, key: string | number | symbol) {
-				const newPath: (string | number | symbol)[] = [...path, key];
+			get(target, key: PropertyKey) {
+				const newPath: PropertyKey[] = [...path, key];
 				switch (key) {
 					case eventEmittersSymbol:
 						return emitters;
@@ -204,7 +209,8 @@ export default function make<Data extends object>(
 							if (typeof value === "object") {
 								const deepNestOptions: DeepNestOptions = getDeepNestOptions(
 									value,
-									{ ...options }
+									{ ...options },
+									pathStringMaker(newPath)
 								);
 								if (deepNestOptions.target) return value;
 								return makeDeepNest(
@@ -218,7 +224,11 @@ export default function make<Data extends object>(
 							return value;
 						}
 
-						const deepNestOptions = getDeepNestOptions(target, { ...options });
+						const deepNestOptions = getDeepNestOptions(
+							target,
+							{ ...options },
+							pathStringMaker(newPath)
+						);
 						if (!deepNestOptions.target && deepNestOptions.deep) {
 							return makeDeepNest(
 								{},
@@ -238,36 +248,51 @@ export default function make<Data extends object>(
 
 				// Place the target onto the root in the correct path so that reflection can work properly.
 				root = set(root, [...path], target);
-				Reflect.set(
-					// @ts-ignore This is literally how it's meant to be used but ok.
-					...arguments
-				);
+				if (
+					!Reflect.set(
+						// @ts-ignore This is literally how it's meant to be used but ok.
+						...arguments
+					)
+				) {
+					// If the set failed, make sure an error is thrown.
+					return false;
+				}
 
-				const deepNestOptions = getDeepNestOptions(target, { ...options });
-				if (!deepNestOptions.silent && isDifferent(oldValue, value)) {
+				const deepNestOptions = getDeepNestOptions(
+					target,
+					{ ...options },
+					pathStringMaker(newPath)
+				);
+				if (deepNestOptions.loud && isDifferent(oldValue, value)) {
 					emitUp<Events.SET>(emitters, {
 						event: Events.SET,
 						path: newPath,
 						value,
 					});
 				}
-				// This needs to return true or it errors. /shrug
+
 				return true;
 			},
 			deleteProperty(_target, key) {
-				const deepNestOptions = getDeepNestOptions(target, {
-					...options,
-				});
+				const newPath = [...path, key];
+
+				const deepNestOptions = getDeepNestOptions(
+					target,
+					{
+						...options,
+					},
+					pathStringMaker(newPath)
+				);
 				if (
 					Reflect.deleteProperty(
 						// @ts-ignore This is literally how it's meant to be used but ok.
 						...arguments
 					) &&
-					!deepNestOptions.silent
+					deepNestOptions.loud
 				) {
 					emitUp(emitters, {
 						event: Events.DELETE,
-						path: [...path, key],
+						path: newPath,
 					});
 					return true;
 				}

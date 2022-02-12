@@ -1,8 +1,8 @@
 export default function walkTree<Data extends object>(
 	nest: Data,
-	callback: (node: any, path: (string | number | symbol)[]) => void
+	callback: (node: any, path: PropertyKey[]) => void
 ) {
-	const walk = (value: any, path: (string | number | symbol)[]) => {
+	const walk = (value: any, path: PropertyKey[]) => {
 		if (Array.isArray(value)) {
 			for (let i = 0; i < value.length; i++) {
 				walk(value[i], [...path, i]);

@@ -3,18 +3,15 @@ import { pathSymbol } from "../symbols";
 import symbolJoin from "./symbolJoin";
 
 export default function pathStringMaker<Data extends object>(
-	nest:
-		| Nest<Data>
-		| [Nest<Data>, string | number | symbol]
-		| (string | number | symbol)[]
+	nest: Nest<Data> | [Nest<Data>, PropertyKey] | PropertyKey[]
 ) {
-	let key: string | number | symbol | (string | number | symbol)[];
+	let key: PropertyKey | PropertyKey[];
 	if (Array.isArray(nest)) {
 		if (typeof nest[0] === "object") {
-			[nest, ...key] = nest as [Nest<Data>, string | number | symbol];
-			key = symbolJoin(key as (string | number | symbol)[], ".");
+			[nest, ...key] = nest as [Nest<Data>, PropertyKey];
+			key = symbolJoin(key as PropertyKey[], ".");
 		} else {
-			return symbolJoin(nest as (string | number | symbol)[], ".");
+			return symbolJoin(nest as PropertyKey[], ".");
 		}
 	}
 

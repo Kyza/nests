@@ -1,6 +1,6 @@
 export default function set<Type>(
 	obj: Type,
-	path: (string | number | symbol)[],
+	path: PropertyKey[],
 	value: any
 ): Type {
 	let current = obj;

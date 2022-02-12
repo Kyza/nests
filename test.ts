@@ -1,6 +1,7 @@
 import { make, Events } from "./src";
 import { SetListenerData } from "./src/lib-utils/makeEmitter";
 import type Nest from "./src/Nest";
+import { deepSymbol, loudSymbol, targetSymbol } from "./src/symbols";
 import {
 	on,
 	once,
@@ -53,15 +54,23 @@ function debounce(func: Function, wait: number, immediate: boolean = false) {
 }
 
 const largeArray = new Array(1000000).fill(0);
+largeArray.unshift(0);
 
 // Time how long it takes to unshift into the array in milliseconds using hrtime.
 
-const nest = make<any>({
-	array: target(largeArray),
-});
+const nest = make<any>(
+	{ array: [...largeArray] },
+	{
+		behaviors: {
+			array: {
+				[targetSymbol]: true,
+			},
+		},
+	}
+);
 
 on(Events.SET, nest, (data) => {
-	console.log(data);
+	console.log("cool", data);
 });
 
 const t2 = process.hrtime();
