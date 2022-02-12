@@ -6,7 +6,7 @@ import Nest from "../Nest";
 
 export default function off<Data extends object>(
 	events: Events | Events[],
-	nest: Nest<Data> | [Nest<Data>, string | symbol],
+	nest: Nest<Data> | [Nest<Data>, string | number | symbol],
 	func: ListenerFunction<Nest<Data>>
 ) {
 	const pathString = pathStringMaker(nest);

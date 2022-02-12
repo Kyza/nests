@@ -13,7 +13,7 @@ export default function isDifferent(oldObj: any, newObj: any): boolean {
 		(newObj.constructor === Object && oldObj.constructor === Object) ||
 		areArrays
 	) {
-		const keys = new Set<string | symbol>([
+		const keys = new Set<string | number | symbol>([
 			...Reflect.ownKeys(oldObj),
 			...Reflect.ownKeys(newObj),
 		]);

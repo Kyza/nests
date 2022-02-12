@@ -1,8 +1,11 @@
 import Nest from "../Nest";
 import { targetSymbol } from "../symbols";
+import isNest from "./isNest";
 
 export default function target<Data extends object>(
-	nest: Nest<Data>
-): Nest<Data> {
-	return nest[targetSymbol];
+	obj: Nest<Data> | Data
+): Nest<Data> | Data {
+	return isNest(obj)
+		? (obj[targetSymbol] as Nest<Data>)
+		: ((obj[targetSymbol] = true), obj as Data);
 }

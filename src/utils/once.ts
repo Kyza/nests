@@ -5,7 +5,7 @@ import on from "./on";
 
 export default function once<Data extends object>(
 	events: Events | Events[],
-	nest: Nest<Data> | [Nest<Data>, string | symbol],
+	nest: Nest<Data> | [Nest<Data>, string | number | symbol],
 	func: ListenerFunction<Nest<Data>>
 ) {
 	let off;

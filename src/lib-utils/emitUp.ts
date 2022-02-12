@@ -2,7 +2,9 @@ import Events from "../Events";
 import { EventEmitter, ListenerReceive } from "./makeEmitter";
 
 export default function emitUp<EventType extends keyof typeof Events>(
-	emitters: { [key: string]: EventEmitter },
+	emitters: {
+		[path: string]: EventEmitter;
+	},
 	data: ListenerReceive<EventType>
 ) {
 	//

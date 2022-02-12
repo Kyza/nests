@@ -3,7 +3,7 @@ import Events from "../Events.js";
 // The types of data that can be emitted.
 export type ListenerData = {
 	event: keyof typeof Events;
-	path: (string | symbol)[];
+	path: (string | number | symbol)[];
 };
 export type SetListenerData = {
 	value: object;
