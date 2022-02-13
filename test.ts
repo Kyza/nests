@@ -65,6 +65,7 @@ const nest = make<any>(
 			array: {
 				[targetSymbol]: true,
 			},
+			[deepSymbol]: false,
 		},
 	}
 );

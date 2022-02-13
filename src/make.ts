@@ -21,20 +21,25 @@ import isDifferent from "./lib-utils/isDifferent.js";
 import walkTree from "./lib-utils/walkTree.js";
 import pathStringMaker from "./lib-utils/pathStringMaker.js";
 
-export type NestBehaviors =
-	| {
-			[targetSymbol]: true;
-	  }
-	| ({
-			[key: PropertyKey]: NestBehaviors;
-	  } & {
-			[deepSymbol]?: boolean;
-			[loudSymbol]?: boolean;
-			[targetSymbol]?: false;
-	  });
+export type NestBehavior<T = never> = [T] extends [never]
+	?
+			| {
+					[targetSymbol]: true;
+			  }
+			| (Omit<
+					{
+						[key: PropertyKey]: NestBehavior;
+					},
+					typeof targetSymbol | typeof deepSymbol | typeof loudSymbol
+			  > & {
+					[targetSymbol]?: false;
+					[deepSymbol]?: boolean;
+					[loudSymbol]?: boolean;
+			  })
+	: never;
 
 export type NestOptions = {
-	behaviors?: NestBehaviors;
+	behaviors?: NestBehavior;
 	cloner?:
 		| { deep?: boolean; function?: (value: any) => any }
 		| ((value: any) => any);
@@ -53,15 +58,14 @@ export default function make<Data extends object>(
 ): Nest<Data> {
 	const nestOptions = options;
 
-	// @ts-ignore
-	options.behaviors ??= {
-		[deepSymbol]: true,
-		[loudSymbol]: true,
-		[targetSymbol]: false,
-	};
+	options.behaviors ??= {};
 	options.behaviors[deepSymbol] ??= true;
 	options.behaviors[loudSymbol] ??= true;
 	options.behaviors[targetSymbol] ??= false;
+
+	// This line exists because of a bug in the TypeScript compiler.
+	if (options.behaviors?.[targetSymbol])
+		throw new Error("Nest root cannot be a target.");
 
 	if (typeof options.cloner === "function") {
 		options.cloner = {
