@@ -24,4 +24,5 @@ body,
 
 #root {
 	display: grid;
+	grid-template-rows: 28px auto;
 }

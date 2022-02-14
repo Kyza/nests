@@ -11,7 +11,7 @@ const App: Component = () => {
 
 	return (
 		<>
-			<nav class="bg-[#292a2d] text-[#9AA0A6] border-b-1 border-[#494c50]">
+			<nav class="grid bg-[#292a2d] text-[#9AA0A6] border-b-1 border-[#494c50]">
 				<ul class="flex items-center px-2 h-8 flex-row">
 					<li class="">
 						<Link

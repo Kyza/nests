@@ -16,16 +16,18 @@ export default function InspectPage() {
 	const selectedStoreData = () => stores()[selectedStore()];
 	const selectedStoreHistory = () => selectedStoreData()?.history;
 
-	const selectedHistoryPointData = createMemo(() =>
-		selectedHistoryPoint() != null
-			? selectedStoreHistory()[selectedHistoryPoint()]
-			: selectedStoreHistory()[selectedStoreData().history.length - 1]
+	const selectedHistoryPointData = createMemo(
+		() =>
+			(selectedHistoryPoint() != null
+				? selectedStoreHistory()[selectedHistoryPoint()]
+				: selectedStoreHistory()[selectedStoreData().history.length - 1]
+			).data
 	);
 
 	return (
 		<>
 			{/* <h1 class="text-2xl font-bold">Inspect {selectedStore() ?? "Store"}</h1> */}
-			{selectedStoreData() == null ? (
+			{selectedStore() == null ? (
 				<p>
 					<Link href="/">Select a store</Link> to inspect it.
 				</p>
@@ -41,7 +43,7 @@ export default function InspectPage() {
 							{(point, i) => (
 								<ToggleButton
 									selected={selectedHistoryPoint() === i}
-									onClick={() => {
+									onMouseDown={() => {
 										if (selectedHistoryPoint() === i) {
 											setSelectedHistoryPoint(null);
 										} else {
@@ -55,7 +57,7 @@ export default function InspectPage() {
 						</Index>
 					</div>
 					<div class={styles.inspectPoint}>
-						<Tree object={selectedHistoryPointData()} />
+						<Tree id={selectedStore()} object={selectedHistoryPointData()} />
 					</div>
 				</ResizeBox>
 			)}
