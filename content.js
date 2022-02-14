@@ -16,9 +16,9 @@
 // 	tabId: chrome.devtools.inspectedWindow.tabId,
 // });
 
-chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-	console.log("aaaaa", request, sender, sendResponse);
-});
+// chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+// 	console.log("aaaaa", request, sender, sendResponse);
+// });
 
 // Listen to the messages from the actual page and send them to the devtools panel.
 window.addEventListener("message", function windowListener(event) {
@@ -45,5 +45,80 @@ window.addEventListener("message", function windowListener(event) {
 		);
 	}
 
+	message.data = serialize(message.data);
+
 	chrome.runtime.sendMessage(message);
 });
+
+function set(obj, path, value) {
+	let current = obj;
+	for (let i = 0; i < path.length - 1; i++) {
+		if (current[path[i]] == null) current[path[i]] = {};
+		current = current[path[i]];
+	}
+	current[path[path.length - 1]] = value;
+	return obj;
+}
+
+function serialize(object) {
+	const result = Array.isArray(object) ? [] : {};
+	walkTree(object, (value, path) => {
+		if (value instanceof RegExp) {
+			return set(result, path, {
+				$$SERIALIZED_TYPE$$: {
+					type: "RegExp",
+					value: [value.source, value.flags],
+				},
+			});
+		}
+		if (value instanceof Date)
+			return set(result, path, {
+				$$SERIALIZED_TYPE$$: {
+					type: "Date",
+					value: value.toISOString(),
+				},
+			});
+		if (value instanceof Map)
+			return set(result, path, {
+				$$SERIALIZED_TYPE$$: {
+					type: "Map",
+					value: serialize([...value.entries()]),
+				},
+			});
+		if (value instanceof Set)
+			return set(result, path, {
+				$$SERIALIZED_TYPE$$: {
+					type: "Set",
+					value: serialize([...value]),
+				},
+			});
+		if (value instanceof Function)
+			return set(result, path, {
+				$$SERIALIZED_TYPE$$: {
+					type: "RegExp",
+					value: value.toString(),
+				},
+			});
+		if (path.length > 0) set(result, path, value);
+	});
+	return result;
+}
+
+function walkTree(obj, callback) {
+	const walk = (value, path) => {
+		callback(value, [...path]);
+		if (Array.isArray(value)) {
+			for (let i = 0; i < value.length; i++) {
+				walk(value[i], [...path, i]);
+			}
+		} else if (typeof value === "object" && value !== null) {
+			for (const key of Object.getOwnPropertySymbols(value)) {
+				walk(value[key], [...path, key]);
+			}
+			for (const key of Object.keys(value)) {
+				walk(value[key], [...path, key]);
+			}
+		}
+	};
+	walk(obj, []);
+}

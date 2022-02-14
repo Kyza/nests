@@ -42,7 +42,9 @@ export default function TreeLevel(props: {
 
 	return (
 		<div
-			class={`${styles.treeBase} ${path().length === 0 ? "" : styles.indent}`}
+			class={`${styles.treeBase} ${path().length > 0 ? styles.indent : ""} ${
+				path().length > 0 ? styles.indentLine : ""
+			}`}
 		>
 			<For each={nodes()}>
 				{([key, value]) => {
@@ -73,16 +75,20 @@ export default function TreeLevel(props: {
 									<span class={styles.pill}>{`"${value}"`}</span>
 								</Match>
 								<Match
-									when={typeof value === "boolean" || typeof value === "number"}
+									when={
+										typeof value === "boolean" ||
+										typeof value === "number" ||
+										value instanceof RegExp
+									}
 								>
 									<span class={styles.pill}>{`${key}`}</span>
 									{":"}
 									<span class={styles.pill}>{`${value}`}</span>
 								</Match>
-								<Match when={value instanceof Date || value instanceof RegExp}>
+								<Match when={value instanceof Date}>
 									<span class={styles.pill}>{`${key}`}</span>
 									{":"}
-									<span class={styles.pill}>{`"${value.toString()}"`}</span>
+									<span class={styles.pill}>{`${value.toISOString()}`}</span>
 								</Match>
 								<Match when={Array.isArray(value)}>
 									<span
@@ -93,13 +99,11 @@ export default function TreeLevel(props: {
 									>
 										<span class={styles.pill}>{`${key}`}</span>
 										{":"}
-										{!expanded() ? (
-											<span
-												class={styles.pill}
-											>{`[...] ${value.length.toLocaleString()}`}</span>
-										) : (
-											"["
-										)}
+										<span class={styles.pill}>
+											{!expanded()
+												? `${value.length.toLocaleString()} [...]`
+												: `${value.length.toLocaleString()} [`}
+										</span>
 									</span>
 									{expanded() ? (
 										<>
@@ -108,7 +112,59 @@ export default function TreeLevel(props: {
 												object={value}
 												path={[...path(), key]}
 											/>
-											{"]"}
+											<span class={styles.pill}>{"]"}</span>
+										</>
+									) : null}
+								</Match>
+								<Match when={value instanceof Map}>
+									<span
+										class={styles.expandable}
+										onMouseDown={() => {
+											setExpanded(!expanded());
+										}}
+									>
+										<span class={styles.pill}>{`${key}`}</span>
+										{":"}
+										<span class={styles.pill}>
+											{!expanded()
+												? `${value.size.toLocaleString()} Map{...}`
+												: `${value.size.toLocaleString()} Map{`}
+										</span>
+									</span>
+									{expanded() ? (
+										<>
+											<TreeLevel
+												id={props.id}
+												object={Object.fromEntries(value.entries())}
+												path={[...path(), key]}
+											/>
+											<span class={styles.pill}>{"}"}</span>
+										</>
+									) : null}
+								</Match>
+								<Match when={value instanceof Set}>
+									<span
+										class={styles.expandable}
+										onMouseDown={() => {
+											setExpanded(!expanded());
+										}}
+									>
+										<span class={styles.pill}>{`${key}`}</span>
+										{":"}
+										<span class={styles.pill}>
+											{!expanded()
+												? `${value.size.toLocaleString()} Set[...]`
+												: `${value.size.toLocaleString()} Set[`}
+										</span>
+									</span>
+									{expanded() ? (
+										<>
+											<TreeLevel
+												id={props.id}
+												object={[...value]}
+												path={[...path(), key]}
+											/>
+											<span class={styles.pill}>{"]"}</span>
 										</>
 									) : null}
 								</Match>
@@ -121,13 +177,11 @@ export default function TreeLevel(props: {
 									>
 										<span class={styles.pill}>{`${key}`}</span>
 										{":"}
-										{!expanded() ? (
-											<span class={styles.pill}>{`{...} ${Object.keys(
-												value
-											).length.toLocaleString()}`}</span>
-										) : (
-											"{"
-										)}
+										<span class={styles.pill}>
+											{!expanded()
+												? `${Object.keys(value).length.toLocaleString()} {...}`
+												: `${Object.keys(value).length.toLocaleString()} {`}
+										</span>
 									</span>
 									{expanded() ? (
 										<>
@@ -136,7 +190,7 @@ export default function TreeLevel(props: {
 												object={value}
 												path={[...path(), key]}
 											/>
-											{"}"}
+											<span class={styles.pill}>{"}"}</span>
 										</>
 									) : null}
 								</Match>

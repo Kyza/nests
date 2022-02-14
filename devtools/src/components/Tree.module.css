@@ -3,9 +3,10 @@
 }
 
 .indent {
+	padding-left: 1em;
+}
+.indentLine {
 	border-left: 1px solid var(--accent-color);
-	margin-left: 1em;
-	padding-left: 1px;
 }
 
 .expandable {

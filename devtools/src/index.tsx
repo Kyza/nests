@@ -9,6 +9,7 @@ import "./index.css";
 
 import type { TrackedStore } from "./stores/StoreData";
 import { stores, setStores } from "./stores/StoreData";
+import deserialize from "./utils/deserialize";
 
 // Fix wrong starting URL.
 window.history.replaceState({}, "", "/");
@@ -26,7 +27,10 @@ chrome.devtools.panels.create(
 			sender,
 			sendResponse
 		) {
-			if (sender.tab.id === tabID) {
+			if (
+				sender.tab.id === tabID &&
+				request.source === "nests-devtools-extension"
+			) {
 				switch (request.type) {
 					case "INIT":
 						// This is *really* for resetting stores when they are recreated.
@@ -39,7 +43,7 @@ chrome.devtools.panels.create(
 										{
 											name: "INIT",
 											time: new Date(),
-											data: request.data,
+											data: deserialize(request.data),
 										},
 									],
 								},
@@ -54,7 +58,7 @@ chrome.devtools.panels.create(
 							store.history.push({
 								name: request.name,
 								time: new Date(),
-								data: request.data,
+								data: deserialize(request.data),
 							});
 							return {
 								...stores,
