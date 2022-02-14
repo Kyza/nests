@@ -9,7 +9,7 @@ import "./index.css";
 
 import type { TrackedStore } from "./stores/StoreData";
 import { stores, setStores } from "./stores/StoreData";
-import deserialize from "./utils/deserialize";
+import deepFreeze from "./utils/deepFreeze";
 
 // Fix wrong starting URL.
 window.history.replaceState({}, "", "/");
@@ -40,11 +40,11 @@ chrome.devtools.panels.create(
 								...stores,
 								[request.id]: {
 									history: [
-										{
+										deepFreeze({
 											name: "INIT",
 											time: new Date(),
-											data: deserialize(request.data),
-										},
+											data: request.data,
+										}),
 									],
 								},
 							};
@@ -55,11 +55,13 @@ chrome.devtools.panels.create(
 						// TODO: Show a warning if the store hasn't been created when calling this. That means it hasn't done INIT which could cause problems with hot module reloaders.
 						setStores((stores) => {
 							const store: TrackedStore = stores[request.id] || { history: [] };
-							store.history.push({
-								name: request.name,
-								time: new Date(),
-								data: deserialize(request.data),
-							});
+							store.history.push(
+								deepFreeze({
+									name: request.name,
+									time: new Date(),
+									data: request.data,
+								})
+							);
 							return {
 								...stores,
 								[request.id]: store,
