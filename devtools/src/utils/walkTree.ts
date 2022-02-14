@@ -11,10 +11,7 @@ export default function walkTree(
 				walk(value[i], [...path, i]);
 			}
 		} else if (typeof value === "object" && value !== null) {
-			for (const key of Object.getOwnPropertySymbols(value)) {
-				walk(value[key], [...path, key]);
-			}
-			for (const key of Object.keys(value)) {
+			for (const key of Reflect.ownKeys(value)) {
 				walk(value[key], [...path, key]);
 			}
 		}

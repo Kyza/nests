@@ -2,6 +2,9 @@
 	--background-color: #202124;
 	--text-color: #cfd0d0;
 	--accent-color: #494c50;
+	--accent-color-25: #494c503f;
+	--accent-color-50: #494c507f;
+	--accent-color-75: #494c50bf;
 }
 
 a {

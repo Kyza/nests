@@ -9,23 +9,23 @@ export default function deserialize(object): any {
 			const type = value.type;
 			const realValue = value.value;
 			switch (type) {
-				case "Function":
-					set(result, previousPath, new Function(realValue));
-					break;
-				case "RegExp":
-					set(result, previousPath, new RegExp(realValue[0], realValue[1]));
-					break;
-				case "Date":
-					set(result, previousPath, new Date(realValue));
-					break;
-				case "Set":
-					set(result, previousPath, new Set(deserialize(realValue)));
-					break;
-				case "Map":
-					set(result, previousPath, new Map(deserialize(realValue)));
-					break;
+				// case "Function":
+				// 	set(result, previousPath, new Function(realValue));
+				// 	break;
+				// case "RegExp":
+				// 	set(result, previousPath, new RegExp(realValue[0], realValue[1]));
+				// 	break;
+				// case "Date":
+				// 	set(result, previousPath, new Date(realValue));
+				// 	break;
+				// case "Set":
+				// 	set(result, previousPath, new Set(deserialize(realValue)));
+				// 	break;
+				// case "Map":
+				// 	set(result, previousPath, new Map(deserialize(realValue)));
+				// 	break;
 				default:
-					throw new Error(`Unknown serialized type: ${type}`);
+				// throw new Error(`Unknown serialized type: ${type}`);
 			}
 			return false;
 		}

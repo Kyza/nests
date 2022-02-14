@@ -66,29 +66,27 @@ export default function TreeLevel(props: {
 						}
 					}
 
+					let serializedData = value?.$$SERIALIZED_TYPE$$;
+
 					return (
 						<div class={styles.treeKey}>
 							<Switch>
 								<Match when={typeof value === "string"}>
-									<span class={styles.pill}>{`${key}`}</span>
+									<span class={styles.pill}>{key}</span>
 									{":"}
 									<span class={styles.pill}>{`"${value}"`}</span>
 								</Match>
 								<Match
-									when={
-										typeof value === "boolean" ||
-										typeof value === "number" ||
-										value instanceof RegExp
-									}
+									when={typeof value === "boolean" || typeof value === "number"}
 								>
-									<span class={styles.pill}>{`${key}`}</span>
+									<span class={styles.pill}>{key}</span>
 									{":"}
-									<span class={styles.pill}>{`${value}`}</span>
+									<span class={styles.pill}>{value.toString()}</span>
 								</Match>
 								<Match when={value instanceof Date}>
-									<span class={styles.pill}>{`${key}`}</span>
+									<span class={styles.pill}>{key}</span>
 									{":"}
-									<span class={styles.pill}>{`${value.toISOString()}`}</span>
+									<span class={styles.pill}>{value.toISOString()}</span>
 								</Match>
 								<Match when={Array.isArray(value)}>
 									<span
@@ -97,12 +95,12 @@ export default function TreeLevel(props: {
 											setExpanded(!expanded());
 										}}
 									>
-										<span class={styles.pill}>{`${key}`}</span>
+										<span class={styles.pill}>{key}</span>
 										{":"}
 										<span class={styles.pill}>
-											{!expanded()
-												? `${value.length.toLocaleString()} [...]`
-												: `${value.length.toLocaleString()} [`}
+											{`${value.length.toLocaleString()} [${
+												!expanded() ? "...]" : ""
+											}`}
 										</span>
 									</span>
 									{expanded() ? (
@@ -116,55 +114,72 @@ export default function TreeLevel(props: {
 										</>
 									) : null}
 								</Match>
-								<Match when={value instanceof Map}>
-									<span
-										class={styles.expandable}
-										onMouseDown={() => {
-											setExpanded(!expanded());
-										}}
-									>
-										<span class={styles.pill}>{`${key}`}</span>
-										{":"}
-										<span class={styles.pill}>
-											{!expanded()
-												? `${value.size.toLocaleString()} Map{...}`
-												: `${value.size.toLocaleString()} Map{`}
-										</span>
-									</span>
-									{expanded() ? (
-										<>
-											<TreeLevel
-												id={props.id}
-												object={Object.fromEntries(value.entries())}
-												path={[...path(), key]}
-											/>
-											<span class={styles.pill}>{"}"}</span>
-										</>
-									) : null}
+								<Match
+									when={
+										serializedData && typeof serializedData.value === "string"
+									}
+								>
+									<span class={styles.pill}>{key}</span>
+									{":"}
+									<span class={styles.pill}>{serializedData.value}</span>
 								</Match>
-								<Match when={value instanceof Set}>
+								<Match
+									when={serializedData && Array.isArray(serializedData.value)}
+								>
 									<span
 										class={styles.expandable}
 										onMouseDown={() => {
 											setExpanded(!expanded());
 										}}
 									>
-										<span class={styles.pill}>{`${key}`}</span>
+										<span class={styles.pill}>{key}</span>
 										{":"}
 										<span class={styles.pill}>
-											{!expanded()
-												? `${value.size.toLocaleString()} Set[...]`
-												: `${value.size.toLocaleString()} Set[`}
+											{`${serializedData.value.length.toLocaleString()} ${
+												serializedData.type
+											}[${!expanded() ? "...]" : ""}`}
 										</span>
 									</span>
 									{expanded() ? (
 										<>
 											<TreeLevel
 												id={props.id}
-												object={[...value]}
+												object={serializedData.value}
 												path={[...path(), key]}
 											/>
 											<span class={styles.pill}>{"]"}</span>
+										</>
+									) : null}
+								</Match>
+								<Match
+									when={
+										serializedData && typeof serializedData.value === "object"
+									}
+								>
+									<span
+										class={styles.expandable}
+										onMouseDown={() => {
+											setExpanded(!expanded());
+										}}
+									>
+										<span class={styles.pill}>{key}</span>
+										{":"}
+										<span class={styles.pill}>
+											{`${Object.keys(
+												serializedData.value
+											).length.toLocaleString()} ${serializedData.type}{${
+												!expanded() ? "...}" : ""
+											}`}
+										</span>
+									</span>
+									{expanded() ? (
+										<>
+											<TreeLevel
+												id={props.id}
+												object={serializedData.value}
+												path={[...path(), key]}
+											/>
+											<span class={styles.pill}>{"}"}</span>
 										</>
 									) : null}
 								</Match>
@@ -175,12 +190,12 @@ export default function TreeLevel(props: {
 											setExpanded(!expanded());
 										}}
 									>
-										<span class={styles.pill}>{`${key}`}</span>
+										<span class={styles.pill}>{key}</span>
 										{":"}
 										<span class={styles.pill}>
-											{!expanded()
-												? `${Object.keys(value).length.toLocaleString()} {...}`
-												: `${Object.keys(value).length.toLocaleString()} {`}
+											{`${Object.keys(value).length.toLocaleString()} {${
+												!expanded() ? "...}" : ""
+											}`}
 										</span>
 									</span>
 									{expanded() ? (

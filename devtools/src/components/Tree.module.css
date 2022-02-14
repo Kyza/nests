@@ -6,7 +6,7 @@
 	padding-left: 1em;
 }
 .indentLine {
-	border-left: 1px solid var(--accent-color);
+	border-left: 1px solid var(--accent-color-50);
 }
 
 .expandable {
@@ -17,7 +17,7 @@
 }
 
 .pill {
-	background-color: var(--accent-color);
+	background-color: var(--accent-color-50);
 	border-radius: 4px;
 	padding-left: 4px;
 	padding-right: 4px;

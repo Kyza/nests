@@ -67,7 +67,7 @@ function serialize(object) {
 			return set(result, path, {
 				$$SERIALIZED_TYPE$$: {
 					type: "RegExp",
-					value: [value.source, value.flags],
+					value: value.toString(),
 				},
 			});
 		}
@@ -82,7 +82,7 @@ function serialize(object) {
 			return set(result, path, {
 				$$SERIALIZED_TYPE$$: {
 					type: "Map",
-					value: serialize([...value.entries()]),
+					value: serialize(Object.fromEntries(value.entries())),
 				},
 			});
 		if (value instanceof Set)
@@ -112,10 +112,7 @@ function walkTree(obj, callback) {
 				walk(value[i], [...path, i]);
 			}
 		} else if (typeof value === "object" && value !== null) {
-			for (const key of Object.getOwnPropertySymbols(value)) {
-				walk(value[key], [...path, key]);
-			}
-			for (const key of Object.keys(value)) {
+			for (const key of Reflect.ownKeys(value)) {
 				walk(value[key], [...path, key]);
 			}
 		}
