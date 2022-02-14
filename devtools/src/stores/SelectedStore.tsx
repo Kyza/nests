@@ -1,3 +1,7 @@
 import { createSignal } from "solid-js";
 
-export default createSignal<string | undefined>(null);
+const [selectedStore, setSelectedStore] = createSignal<string | undefined>(
+	null
+);
+
+export { selectedStore, setSelectedStore };

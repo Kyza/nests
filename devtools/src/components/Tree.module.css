@@ -1,0 +1,7 @@
+.treeBase {
+	margin-left: 1em;
+}
+
+.treeKeyExpandable {
+	cursor: pointer;
+}

@@ -2,7 +2,7 @@ import { lazy } from "solid-js";
 import type { RouteDefinition } from "solid-app-router";
 
 import SelectPanel from "./pages/index";
-import InspectPanel from "./pages/inspect";
+import InspectPage from "./pages/inspect";
 import AboutPanel from "./pages/about";
 import NotFound from "./errors/404";
 
@@ -13,7 +13,7 @@ export const routes: RouteDefinition[] = [
 	},
 	{
 		path: "/inspect",
-		component: InspectPanel,
+		component: InspectPage,
 	},
 	{
 		path: "/about",

@@ -3,6 +3,8 @@ import { Link, useRoutes, useLocation } from "solid-app-router";
 
 import { routes } from "./routes";
 
+import styles from "./app.module.css";
+
 const App: Component = () => {
 	const location = useLocation();
 	const Route = useRoutes(routes);
@@ -10,7 +12,7 @@ const App: Component = () => {
 	return (
 		<>
 			<nav class="bg-[#292a2d] text-[#9AA0A6] border-b-1 border-[#494c50]">
-				<ul class="flex items-center px-2 h-8">
+				<ul class="flex items-center px-2 h-8 flex-row">
 					<li class="">
 						<Link
 							href="/"
@@ -44,7 +46,7 @@ const App: Component = () => {
 				</ul>
 			</nav>
 
-			<main>
+			<main class={styles.main}>
 				<Route />
 			</main>
 		</>

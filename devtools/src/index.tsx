@@ -7,46 +7,66 @@ import App from "./app";
 
 import "./index.css";
 
-import AllStores from "./stores/AllStores";
-const { stores, setStores } = AllStores;
+import type { TrackedStore } from "./stores/StoreData";
+import { stores, setStores } from "./stores/StoreData";
+
+// Fix wrong starting URL.
+window.history.replaceState({}, "", "/");
 
 // Create the devtools panel.
-chrome.devtools.panels.create("Nests", null, "/", function (panel) {
-	const tabID = chrome.devtools.inspectedWindow.tabId;
+chrome.devtools.panels.create(
+	"Nests",
+	null,
+	"/devtools/dist/index.html",
+	function (panel) {
+		const tabID = chrome.devtools.inspectedWindow.tabId;
 
-	console.log("tabID", tabID, chrome);
-
-	setTimeout(() => {
-		console.log(chrome);
-	}, 1000);
-
-	chrome.runtime.onMessage.addListener(function (
-		request,
-		sender,
-		sendResponse
-	) {
-		if (sender.tab.id === tabID) {
-			console.log("message received", request, sender, sendResponse);
-			switch (request.type) {
-				case "PROBE":
-					document.body.innerHTML = JSON.stringify(request);
-					break;
-				case "UPDATE":
-					setStores((stores) => {
-						const store = stores[request.id] || { history: [] };
-						return {
-							...stores,
-							[request.id]: {
-								...store,
-								history: [...store.history, request.data],
-							},
-						};
-					});
-					break;
+		chrome.runtime.onMessage.addListener(function (
+			request,
+			sender,
+			sendResponse
+		) {
+			if (sender.tab.id === tabID) {
+				switch (request.type) {
+					case "INIT":
+						// This is *really* for resetting stores when they are recreated.
+						// So... Reset the history.
+						setStores((stores) => {
+							return {
+								...stores,
+								[request.id]: {
+									history: [
+										{
+											name: "INIT",
+											time: new Date(),
+											data: request.data,
+										},
+									],
+								},
+							};
+						});
+						break;
+					case "UPDATE":
+						// If the store doesn't exist, create it.
+						// TODO: Show a warning if the store hasn't been created when calling this. That means it hasn't done INIT which could cause problems with hot module reloaders.
+						setStores((stores) => {
+							const store: TrackedStore = stores[request.id] || { history: [] };
+							store.history.push({
+								name: request.name,
+								time: new Date(),
+								data: request.data,
+							});
+							return {
+								...stores,
+								[request.id]: store,
+							};
+						});
+						break;
+				}
 			}
-		}
-	});
-});
+		});
+	}
+);
 
 render(
 	() => (

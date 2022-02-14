@@ -1,0 +1,7 @@
+.resizeBox {
+	display: grid;
+}
+
+.resizeBar {
+	background-color: var(--accent-color);
+}
