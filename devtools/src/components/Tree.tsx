@@ -91,8 +91,10 @@ export default function TreeLevel(props: {
 								<Match when={Array.isArray(value)}>
 									<span
 										class={`${styles.expandable}`}
-										onMouseDown={() => {
-											setExpanded(!expanded());
+										onMouseDown={(e) => {
+											if (e.button === 0) {
+												setExpanded(!expanded());
+											}
 										}}
 									>
 										<span class={styles.pill}>{key}</span>
@@ -128,8 +130,10 @@ export default function TreeLevel(props: {
 								>
 									<span
 										class={styles.expandable}
-										onMouseDown={() => {
-											setExpanded(!expanded());
+										onMouseDown={(e) => {
+											if (e.button === 0) {
+												setExpanded(!expanded());
+											}
 										}}
 									>
 										<span class={styles.pill}>{key}</span>
@@ -158,8 +162,10 @@ export default function TreeLevel(props: {
 								>
 									<span
 										class={styles.expandable}
-										onMouseDown={() => {
-											setExpanded(!expanded());
+										onMouseDown={(e) => {
+											if (e.button === 0) {
+												setExpanded(!expanded());
+											}
 										}}
 									>
 										<span class={styles.pill}>{key}</span>
@@ -186,8 +192,10 @@ export default function TreeLevel(props: {
 								<Match when={typeof value === "object"}>
 									<span
 										class={styles.expandable}
-										onMouseDown={() => {
-											setExpanded(!expanded());
+										onMouseDown={(e) => {
+											if (e.button === 0) {
+												setExpanded(!expanded());
+											}
 										}}
 									>
 										<span class={styles.pill}>{key}</span>

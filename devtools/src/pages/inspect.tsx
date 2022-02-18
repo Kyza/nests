@@ -1,14 +1,12 @@
-import { Link, useNavigate } from "solid-app-router";
-import { createEffect, createMemo, createSignal, For, Index } from "solid-js";
+import { Link } from "solid-app-router";
+import { createMemo, createSignal, For, Index } from "solid-js";
 
-import { stores, setStores } from "../stores/StoreData";
-import { selectedStore, setSelectedStore } from "../stores/SelectedStore";
-import ToggleButton from "../components/ToggleButton";
+import { stores } from "../stores/StoreData";
+import { selectedStore } from "../stores/SelectedStore";
 
 import styles from "./inspect.module.css";
 import ResizeBox from "../components/ResizeBox";
 import Tree from "../components/Tree";
-import { createStore } from "solid-js/store";
 
 export default function InspectPage() {
 	const [selectedHistoryPoint, setSelectedHistoryPoint] = createSignal(null);
@@ -16,17 +14,14 @@ export default function InspectPage() {
 	const selectedStoreData = () => stores()[selectedStore()];
 	const selectedStoreHistory = () => selectedStoreData()?.history;
 
-	const selectedHistoryPointData = createMemo(
-		() =>
-			(selectedHistoryPoint() != null
-				? selectedStoreHistory()[selectedHistoryPoint()]
-				: selectedStoreHistory()[selectedStoreData().history.length - 1]
-			).data
-	);
+	const selectedHistoryPointData = () =>
+		(selectedHistoryPoint() != null
+			? selectedStoreHistory()[selectedHistoryPoint()]
+			: selectedStoreHistory()[selectedStoreData().history.length - 1]
+		).data;
 
 	return (
 		<>
-			{/* <h1 class="text-2xl font-bold">Inspect {selectedStore() ?? "Store"}</h1> */}
 			{selectedStore() == null ? (
 				<p>
 					<Link href="/">Select a store</Link> to inspect it.
@@ -39,22 +34,27 @@ export default function InspectPage() {
 					right={100}
 				>
 					<div class={styles.inspectHistory}>
-						<Index each={selectedStoreHistory()}>
-							{(point, i) => (
-								<ToggleButton
-									selected={selectedHistoryPoint() === i}
-									onMouseDown={() => {
-										if (selectedHistoryPoint() === i) {
-											setSelectedHistoryPoint(null);
-										} else {
-											setSelectedHistoryPoint(i);
+						<For each={selectedStoreHistory()}>
+							{(node, i) => (
+								<input
+									type="button"
+									classList={{
+										[styles.inspectHistoryButton]: true,
+										[styles.selected]: selectedHistoryPoint() === i(),
+									}}
+									onMouseDown={(e) => {
+										if (e.button === 0) {
+											if (selectedHistoryPoint() === i()) {
+												setSelectedHistoryPoint(null);
+											} else {
+												setSelectedHistoryPoint(i());
+											}
 										}
 									}}
-								>
-									{point().name}
-								</ToggleButton>
+									value={node.name}
+								/>
 							)}
-						</Index>
+						</For>
 					</div>
 					<div class={styles.inspectPoint}>
 						<Tree id={selectedStore()} object={selectedHistoryPointData()} />

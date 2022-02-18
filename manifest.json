@@ -3,11 +3,7 @@
 	"description": "A state inspector for state management libraries.",
 	"version": "1.0.0",
 	"manifest_version": 3,
-	// "devtools_page": "http://localhost:3001/",
 	"devtools_page": "devtools/dist/index.html",
-	// "background": {
-	// 	"service_worker": "background.js"
-	// },
 	"permissions": ["scripting", "tabs"],
 	"host_permissions": ["*://*/*"],
 	"content_scripts": [

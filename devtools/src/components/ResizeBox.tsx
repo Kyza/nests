@@ -80,8 +80,9 @@ export default function ResizeBox(props) {
 				vertical() ? styles.resizeBoxVertical : styles.resizeBoxHorizontal,
 			].join(" ")}
 			style={{
-				"min-width": props.left + props.right + 8 + "px",
-				"grid-template-columns": `${boxSize()}px 8px auto`,
+				"min-width": props.left + props.right + 4 + "px",
+				"grid-template-columns": `${boxSize()}px 4px auto`,
+				"grid-template-rows": `100%`,
 			}}
 		>
 			<div class={styles.resizeBoxChild}>{props.children[0]}</div>

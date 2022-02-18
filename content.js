@@ -45,7 +45,13 @@ window.addEventListener("message", function windowListener(event) {
 		);
 	}
 
-	message.data = serialize(message.data);
+	message.options ??= {};
+	message.options.serialize ??= true;
+
+	if (typeof message.data === "object" && message.options.serialize) {
+		console.log("serialize", message.data);
+		message.data = serialize(message.data);
+	}
 
 	chrome.runtime.sendMessage(message);
 });

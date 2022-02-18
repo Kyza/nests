@@ -1,7 +1,16 @@
-import { Component, createEffect, For, Suspense } from "solid-js";
+import {
+	Component,
+	createEffect,
+	createMemo,
+	For,
+	Index,
+	Suspense,
+} from "solid-js";
 import { Link, useData } from "solid-app-router";
 
 import pkg from "../../package.json";
+
+const dependencies = () => Object.entries(pkg.dependencies);
 
 export default function AboutPanel() {
 	return (
@@ -29,27 +38,29 @@ export default function AboutPanel() {
 
 			<h1 class="text-2xl font-bold">Dependencies</h1>
 
-			<For each={Object.entries(pkg.dependencies)}>
-				{([name, version]) => (
-					<p>
-						<Link
-							class="underline underline-[#cfd0d0]"
-							href={`https://www.npmjs.com/package/${name}`}
-							target="_blank"
-						>
-							{name}
-						</Link>{" "}
-						<Link
-							class="underline underline-[#cfd0d0]"
-							href={`https://www.npmjs.com/package/${name}/v/${version.slice(
-								1
-							)}`}
-							target="_blank"
-						>
-							v{version.slice(1)}
-						</Link>
-					</p>
-				)}
+			<For each={dependencies()}>
+				{(dep) => {
+					const name = createMemo(() => dep[0]);
+					const version = createMemo(() => dep[1].slice(1));
+					return (
+						<p>
+							<Link
+								class="underline underline-[#cfd0d0]"
+								href={`https://www.npmjs.com/package/${name()}`}
+								target="_blank"
+							>
+								{name()}
+							</Link>{" "}
+							<Link
+								class="underline underline-[#cfd0d0]"
+								href={`https://www.npmjs.com/package/${name()}/v/${version()}`}
+								target="_blank"
+							>
+								v{version()}
+							</Link>
+						</p>
+					);
+				}}
 			</For>
 		</section>
 	);

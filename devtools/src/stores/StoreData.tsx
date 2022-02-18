@@ -15,6 +15,11 @@ type StoreCollection = {
 	[id: string]: TrackedStore;
 };
 
-const [stores, setStores] = createSignal<StoreCollection>({});
+const [stores, setStores] = createSignal<StoreCollection>(
+	{},
+	{
+		equals: false,
+	}
+);
 
 export { stores, setStores };
