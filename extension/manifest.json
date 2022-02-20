@@ -3,7 +3,7 @@
 	"description": "A state inspector for state management libraries.",
 	"version": "1.0.0",
 	"manifest_version": 3,
-	"devtools_page": "devtools/dist/index.html",
+	"devtools_page": "ui/index.html",
 	"permissions": ["scripting", "tabs"],
 	"host_permissions": ["*://*/*"],
 	"content_scripts": [

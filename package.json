@@ -1,0 +1,35 @@
+{
+	"name": "nests-devtools",
+	"version": "0.0.1",
+	"description": "A very fast store inspector made to compliment the Nests state management library and be compatible with others.",
+	"info": "A very fast store inspector made to compliment the Nests state management library and be compatible with others.",
+	"homepage": "",
+	"contributors": [
+		{
+			"name": "Kyza"
+		}
+	],
+	"keywords": [
+		"solidhack",
+		"best_ecosystem",
+		"nests",
+		"devtools",
+		"store",
+		"state",
+		"extension",
+		"inspector"
+	],
+	"license": "MIT",
+	"scripts": {
+		"dev-library": "tsc -w",
+		"dev-extension": "cd extension && tsc -w",
+		"dev-extension-ui": "cd extension/src/ui && npm run build -- -w",
+		"dev-extension-start": "cd dist/extension && web-ext run --chromium-binary='C:/Program Files/Vivaldi/Application/vivaldi.exe'"
+	},
+	"devDependencies": {
+		"@types/chrome": "^0.0.178",
+		"@types/node": "^17.0.18",
+		"typescript": "4.4",
+		"vite": "^2.8.4"
+	}
+}

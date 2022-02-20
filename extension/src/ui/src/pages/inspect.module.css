@@ -4,7 +4,7 @@
 }
 
 .inspectHistory {
-	overflow-y: scroll;
+	overflow-y: auto;
 	display: flex;
 	flex-direction: column;
 	flex-grow: 1;
@@ -36,5 +36,12 @@
 }
 
 .inspectPoint {
-	padding: 1em;
+	display: flex;
+	flex-direction: column;
+	overflow-y: hidden;
+	.inspectPointContent {
+		padding: 6px;
+		flex: 1 1 auto;
+		overflow-y: auto;
+	}
 }

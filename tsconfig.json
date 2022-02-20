@@ -1,0 +1,16 @@
+{
+	"compilerOptions": {
+		"outDir": "./dist/library",
+		"target": "ESNext",
+		"module": "ESNext",
+		"lib": ["ESNext", "DOM"],
+		"moduleResolution": "Node",
+		"esModuleInterop": true,
+		"allowSyntheticDefaultImports": true,
+		"noUnusedParameters": true,
+		"noUnusedLocals": true,
+		"removeComments": true
+	},
+	"include": ["src"],
+	"exclude": ["node_modules"]
+}

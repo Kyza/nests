@@ -1,5 +1,6 @@
 :root {
 	--background-color: #202124;
+	--background-color-light: #292a2d;
 	--text-color: #cfd0d0;
 	--accent-color: #494c50;
 	--accent-color-25: #494c503f;
@@ -23,11 +24,18 @@ body,
 	background-color: var(--background-color);
 	color: var(--text-color);
 	font-size: 14px;
+	overflow: hidden;
+}
+
+body {
+	display: grid;
+	grid-template-rows: auto;
+	grid-template-columns: auto;
 }
 
 #root {
-	display: grid;
-	grid-template-rows: 28px calc(100vh - 28px);
+	display: flex;
+	flex-direction: column;
 }
 
 ::-webkit-scrollbar {

@@ -1,0 +1,15 @@
+{
+	"compilerOptions": {
+		"target": "ESNext",
+		"module": "CommonJS",
+		"moduleResolution": "Node",
+		"esModuleInterop": true,
+		"allowSyntheticDefaultImports": true,
+		"noUnusedParameters": true,
+		"noUnusedLocals": true,
+		"removeComments": true,
+		"downlevelIteration": true
+	},
+	"include": ["src/content.ts", "src/utils"],
+	"exclude": ["node_modules", "src/ui", "vite.config.ts"]
+}

@@ -20,7 +20,7 @@ window.history.replaceState({}, "", "/");
 chrome.devtools.panels.create(
 	"Nests",
 	null,
-	"/devtools/dist/index.html",
+	"/ui/index.html",
 	function (panel) {
 		const tabID = chrome.devtools.inspectedWindow.tabId;
 
@@ -47,11 +47,11 @@ chrome.devtools.panels.create(
 						setStores((stores) => {
 							stores[request.id] = {
 								history: [
-									{
+									deepFreeze({
 										name: "INIT",
 										time: new Date(),
 										data: request.data,
-									},
+									}),
 								],
 							};
 							return stores;
@@ -68,11 +68,13 @@ chrome.devtools.panels.create(
 								);
 								return stores;
 							}
-							store.history.push({
-								name: request.name,
-								time: new Date(),
-								data: request.data,
-							});
+							store.history.push(
+								deepFreeze({
+									name: request.name,
+									time: new Date(),
+									data: request.data,
+								})
+							);
 							return stores;
 						});
 						break;
