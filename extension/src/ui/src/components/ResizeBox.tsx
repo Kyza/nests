@@ -19,9 +19,6 @@ export default function ResizeBox(props) {
 	const [isDragging, setIsDragging] = createSignal<boolean>(false);
 	const [boxSize, setBoxSize] = createSignal<number>(0);
 
-	const [resizeBoxWidth, setResizeBoxWidth] = createSignal<number>(0);
-	const [resizeBoxHeight, setResizeBoxHeight] = createSignal<number>(0);
-
 	onMount(() => {
 		setBoxSize(
 			(vertical() ? resizeBox.clientHeight : resizeBox.clientWidth) / 2
@@ -29,13 +26,8 @@ export default function ResizeBox(props) {
 		createResizeObserver({
 			refs: [resizeBox],
 			onResize: (size) => {
-				setResizeBoxWidth(size.width);
-				setResizeBoxHeight(size.height);
 				setBoxSize(
-					Math.min(
-						boxSize(),
-						vertical() ? size.width - props.right : size.height - props.left
-					)
+					Math.min(boxSize(), (vertical() ? size.height : size.width) - 8)
 				);
 			},
 		});
@@ -54,14 +46,7 @@ export default function ResizeBox(props) {
 			offset -
 			(vertical() ? resizeBar.clientHeight : resizeBar.clientWidth);
 
-		setBoxSize(
-			Math.min(
-				Math.max(props.left, newSize),
-				vertical()
-					? resizeBoxWidth() - props.right
-					: resizeBoxHeight() - props.left
-			)
-		);
+		setBoxSize(newSize);
 	};
 
 	document.body.addEventListener("mouseup", stopDragging);
@@ -80,8 +65,8 @@ export default function ResizeBox(props) {
 				vertical() ? styles.resizeBoxVertical : styles.resizeBoxHorizontal,
 			].join(" ")}
 			style={{
-				"min-width": props.left + props.right + 4 + "px",
-				"grid-template-columns": `${boxSize()}px 4px auto`,
+				"min-width": props.left + props.right + 6 + "px",
+				"grid-template-columns": `${boxSize()}px 6px auto`,
 				"grid-template-rows": `100%`,
 			}}
 		>

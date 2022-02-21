@@ -30,7 +30,7 @@ chrome.devtools.panels.create(
 				type: string;
 				name: string;
 				source: string;
-				data: TrackedStore;
+				state: TrackedStore;
 				stack: ResolvedStack;
 			},
 			sender,
@@ -41,23 +41,23 @@ chrome.devtools.panels.create(
 				request.source === "nests-devtools-extension"
 			) {
 				switch (request.type) {
-					case "INIT":
+					case "REGISTER_STORE":
 						// This is *really* for resetting stores when they are recreated.
 						// So... Reset the history.
 						setStores((stores) => {
 							stores[request.id] = {
 								history: [
 									deepFreeze({
-										name: "INIT",
+										name: "§INIT§",
 										time: new Date(),
-										data: request.data,
+										data: request.state,
 									}),
 								],
 							};
 							return stores;
 						});
 						break;
-					case "UPDATE":
+					case "UPDATE_STORE":
 						// If the store doesn't exist, create it.
 						// TODO: Show a warning if the store hasn't been created when calling this. That means it hasn't done INIT which could cause problems with hot module reloaders.
 						setStores((stores) => {
@@ -72,13 +72,13 @@ chrome.devtools.panels.create(
 								deepFreeze({
 									name: request.name,
 									time: new Date(),
-									data: request.data,
+									data: request.state,
 								})
 							);
 							return stores;
 						});
 						break;
-					case "DESTROY":
+					case "DESTROY_STORE":
 						setStores((stores) => {
 							delete stores[request.id];
 							if (selectedStore() === request.id) {
